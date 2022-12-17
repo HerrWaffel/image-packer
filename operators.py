@@ -11,6 +11,7 @@ from .packing_modes import (
     SquarePacking,
     AutoSort,
     RowPacking,
+    NextFitPacking,
 )
 
 
@@ -40,6 +41,8 @@ class GenerateOpr(Operator):
                 AutoSort(img_list, ImgCol)
             case "row_packing":
                 RowPacking(img_list, ImgCol)
+            case "nextfit_packing":
+                NextFitPacking(img_list, ImgCol)
         if GetActiveImage() == None:
             col_img = bpy.data.images.get(ImgCol.col_name)
             bpy.context.area.spaces.active.image = col_img

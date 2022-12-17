@@ -170,10 +170,6 @@ def RowPacking(img_list, ImgCol):
     sizes = []
     temp_imgs = []
     for img in img_list:
-        temp_img = bpy.data.images.new(
-            img.name + "_temp", width=img.size[0], height=img.size[1])
-        temp_img.pixels[:] = img.pixels
-        
         if height_mode:
             w = ceil(img.size[0] * (side / img.size[1]))
             h = side
@@ -181,11 +177,16 @@ def RowPacking(img_list, ImgCol):
             w = side
             h = ceil((img.size[1] * side) / img.size[0])
 
+        temp_img = bpy.data.images.new(
+            img.name + "_temp", width=img.size[0], height=img.size[1])
+        temp_img.pixels[:] = img.pixels
         temp_img.scale(w, h)
-        add_padding_img(temp_img, padding)
+
         w += 2*padding
         h += 2*padding
         sizes.append((w, h))
+        
+        add_padding_img(temp_img, padding)
         temp_imgs.append(temp_img)
     side += 2*padding
 
@@ -195,52 +196,105 @@ def RowPacking(img_list, ImgCol):
     area = ceil(total_area * 1.5) 
     threshold = ceil( sqrt(area * median_ratio))
 
-    max_w = max_h = 0
-    width = height = 0
-
-    # Check if img width > threshold else place img on new row
-    # Keep track of max width for cropping empty space
+    # Initialize the list of image positions
     imgs_pos = []
-    if height_mode:
-        for i in range(len(temp_imgs)):
-            w, h = temp_imgs[i].size
-            if width + w > threshold:
-                width = w
-                max_h += height
-                height = h
-            else:
-                width += w
-                height = max(height, h) 
-            max_w = max(max_w, width)
-            imgs_pos.append((width - w, max_h))
-        max_h += height
 
-        col_w = max_w
-        col_h = max_h
-    
+    # Iterate through the temp_imgs
+    if height_mode:
+        # Initialize the current position and the maximum width and height
+        x = y = 0
+        col_w = 0
+        for temp_img in temp_imgs:
+            w, h = temp_img.size
+            # Check if the img fits within the current position
+            if x + w > threshold:
+                # The img doesn't fit, so start a new line
+                col_w = max(col_w, x)
+                x = 0
+                y += h
+            # The img fits, so place it at the current position
+            imgs_pos.append((x, y))
+            x += w
+        col_h = max(imgs_pos, key=lambda x: x[1])[1] + h
+
     # Keep track of img heights per row to place the next row on.
     # Crop to last row max height to remove empty space.
     else:
-        heights = []
-        remainder = mod(threshold,side)
-        sides = int((threshold - remainder) / side)
-        for i in range(len(temp_imgs)):
-            h = temp_imgs[i].size[1]
-            col_index = int(mod(i , sides))
-            
+        # Calculate the number of images per row
+        sides = int((threshold - threshold % side) / side)
+        heights = [0] * sides
+        for i, temp_img in enumerate(temp_imgs):
+            h = temp_img.size[1]
+            col_index = i % sides
             width = col_index * side
-            height = 0 if (len(heights) < sides) else (heights[col_index])
+            height = heights[col_index]
 
             imgs_pos.append((width, height))
-            
-            if (len(heights) < sides):
-                heights.append(h)
-            else:
-                heights[col_index] += h
+            heights[col_index] += h
 
         col_w = side * sides
         col_h = max(heights)
 
     col_img, col_pixels = make_col_img(ImgCol.col_name, (col_w, col_h))
+    update_col_pixels(col_img, col_pixels, temp_imgs, imgs_pos)
+    remove_imgs(temp_imgs)
+
+
+def pack_rectangles(imgs, max_width, max_height):
+    x = 0  # Start the current position at (0, 0)
+    y = 0
+    corners = []  # Initialize the list of corners
+    row_heights = []  # Initialize the list of row heights
+    max_w = 0  # Initialize the maximum width
+    max_h = 0  # Initialize the maximum height
+
+    # Iterate through the imgs
+    for img in imgs:
+        # Check if the img fits within the current position
+        if img.size[0] <= max_width - x and img.size[1] <= max_height - y:
+            # The img fits, so add its corner to the list
+            corners.append((x, y))
+            x += img.size[0]  # Update the current position
+            row_heights.append(y + img.size[1])  # Update the row height
+            max_w = max(max_w, x)  # Update the maximum width
+            max_h = max(max_h, y + img.size[1])  # Update the maximum height
+        else:
+            # The img doesn't fit, so start a new line
+            x = 0
+            y = max(row_heights)  # Start the new line at the maximum row height
+            corners.append((x, y))
+            x += img.size[0]  # Update the current position
+            row_heights.append(y + img.size[1])  # Update the row height
+            max_w = max(max_w, x)  # Update the maximum width
+            max_h = max(max_h, y + img.size[1])  # Update the maximum height
+
+    # At this point, the corners list contains the lower left corners of the packed rectangles
+    # and max_w and max_h contain the maximum width and height of the packed rectangles
+    return corners, max_w, max_h
+
+def NextFitPacking(img_list, ImgCol):
+    sizes = []
+    temp_imgs = []
+    for img in img_list:
+        temp_img = bpy.data.images.new(
+            img.name + "_temp", width=img.size[0], height=img.size[1])
+        temp_img.pixels[:] = img.pixels
+        add_padding_img(temp_img, ImgCol.padding)
+        temp_imgs.append(temp_img)
+
+        w, h = temp_img.size
+        sizes.append((w, h))
+        
+    # amount of area needed to place all pixel data + 50% empty space
+    median_ratio = med_ratio_from_size(sizes) 
+    total_area = sum(areas_from_size(sizes))
+    area = ceil(total_area * 1.5)  
+
+    max_height = ceil(sqrt(area / median_ratio))
+    max_width = ceil(area / max_height)
+
+    imgs_pos, max_w, max_h = pack_rectangles(temp_imgs, max_width, max_height)
+    colsize = (max_w, max_h)
+    col_img, col_pixels = make_col_img(ImgCol.col_name, colsize)
     update_col_pixels(col_img, col_pixels, temp_imgs, imgs_pos)
     remove_imgs(temp_imgs)

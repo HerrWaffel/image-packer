@@ -7,7 +7,6 @@ from bpy.props import (
     PointerProperty,
     CollectionProperty,
     FloatVectorProperty,
-    IntVectorProperty,
 )
 
 
@@ -26,6 +25,8 @@ class ImgCol_Properties(bpy.types.PropertyGroup):
         "Keeps the size of the images but doesn't follow the order of the collection list."),
         ('row_packing', "Row Packing", 
         "Keeps the images in order of the collection list and scales images to have the same width or height."),
+        ('nextfit_packing', "Next Fit Packing",
+        "Keeps the size of the images and follows the order of the collection list, but may result in gaps between the rows."),
     ]
 
     packing_mode: EnumProperty(
@@ -33,16 +34,6 @@ class ImgCol_Properties(bpy.types.PropertyGroup):
         items=packing_modes,
         description="Change the packing method of placing images in the collection."
     )
-    # row_packing_modes = [
-    #     ('med_w', "Median Width", "", 1),
-    #     ('med_h', "Median Height", "", 2),
-    #     ('avg_w', "Average Width", "", 3),
-    #     ('avg_h', "Average Height", "", 4),
-    #     ('min_w', "Minimal Width", "", 5),
-    #     ('min_h', "Minimal Height", "", 6),
-    #     ('max_w', "Maximal Width", "", 7),
-    #     ('max_h', "Maximal Height", "", 8),
-    # ]
 
     side: EnumProperty(
         name="Static Side",
