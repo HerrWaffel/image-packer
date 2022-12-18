@@ -10,29 +10,29 @@ from bpy.props import (
 )
 
 
-class ImgCol_Images(bpy.types.PropertyGroup):
+class PackItem(bpy.types.PropertyGroup):
     """Group of properties representing an item in the list."""
     image: PointerProperty(
         name="Image",
         type=bpy.types.Image)
 
 
-class ImgCol_Properties(bpy.types.PropertyGroup):
+class ImagePacker(bpy.types.PropertyGroup):
     packing_modes = [
         ('square_packing', "Square Packing", 
-        "Keeps the images in order of the collection list, scales all images to the same size and makes a 1:1 square collection image."),
+        "Keeps the images in order of the images list, scales all images to the same size and makes a 1:1 packed image."),
         ('auto_sort', "Auto Sort", 
-        "Keeps the size of the images but doesn't follow the order of the collection list."),
+        "Keeps the size of the images but doesn't follow the order of the images list."),
         ('row_packing', "Row Packing", 
-        "Keeps the images in order of the collection list and scales images to have the same width or height."),
+        "Keeps the images in order of the images list and scales images to have the same width or height."),
         ('nextfit_packing', "Next Fit Packing",
-        "Keeps the size of the images and follows the order of the collection list, but may result in gaps between the rows."),
+        "Keeps the size of the images and follows the order of the images list, but may result in gaps between the rows."),
     ]
 
     packing_mode: EnumProperty(
         name="Packing Mode",
         items=packing_modes,
-        description="Change the packing method of placing images in the collection."
+        description="Change the algorithm for packing the images."
     )
 
     side: EnumProperty(
@@ -57,9 +57,9 @@ class ImgCol_Properties(bpy.types.PropertyGroup):
     )
 
     # Name
-    col_name: StringProperty(
+    image_pack_name: StringProperty(
         name="Name",
-        default="New Collection"
+        default="New Packed Image"
     )
 
     bg_color: FloatVectorProperty(
@@ -82,7 +82,7 @@ class ImgCol_Properties(bpy.types.PropertyGroup):
         default=512,
         min=1,
         step=1,
-        description="The width and height of each image in the collection."
+        description="The width and height of each image."
     )
 
     side_length: IntProperty(
@@ -90,20 +90,20 @@ class ImgCol_Properties(bpy.types.PropertyGroup):
         default=512,
         min=1,
         step=1,
-        description="The length of the width/height for each image in the collection."
+        description="The length of the width/height for each image."
     )
 
     # Random
     random_order: BoolProperty(
         name="Random Order",
         default=False,
-        description="Places marked images randomly in the collection"
+        description="Should the images be placed in order or be randomized."
     )
     random_seed: IntProperty(
         name="Random Seed",
         default=0,
         step=1,
-        description="Seed for random order"
+        description="Seed for random order."
     )
 
     # Test Shapes
@@ -162,8 +162,8 @@ class ImgCol_Properties(bpy.types.PropertyGroup):
 
 
 classes = (
-    ImgCol_Images,
-    ImgCol_Properties,
+    PackItem,
+    ImagePacker,
 )
 
 
@@ -171,10 +171,10 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.Scene.ImgCol = PointerProperty(type=ImgCol_Properties)
+    bpy.types.Scene.image_packer = PointerProperty(type=ImagePacker)
 
-    bpy.types.Scene.col_list = CollectionProperty(type=ImgCol_Images)
-    bpy.types.Scene.col_list_index = IntProperty(name="Index for col_list",
+    bpy.types.Scene.image_packer_packing_list = CollectionProperty(type=PackItem)
+    bpy.types.Scene.image_packer_packing_list_index = IntProperty(name="Index for packing_list",
                                                  default=0)
 
 
@@ -182,6 +182,6 @@ def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
 
-    del bpy.types.Scene.ImgCol
-    del bpy.types.Scene.col_list
-    del bpy.types.Scene.col_list_index
+    del bpy.types.Scene.image_packer
+    del bpy.types.Scene.image_packer_packing_list
+    del bpy.types.Scene.image_packer_packing_list_index

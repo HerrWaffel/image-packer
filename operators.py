@@ -2,10 +2,9 @@ import bpy
 from bpy.types import Operator
 from .utils import (
     GetActiveImage, 
-    RandomizeImageOrder, 
-    PreviewColImage, 
+    shuffle_packing_list, 
+    preview_packed_image, 
     CreateTestImgs,
-    DeleteImage,
 )
 from .packing_modes import (
     SquarePacking,
@@ -16,118 +15,118 @@ from .packing_modes import (
 
 
 class GenerateOpr(Operator):
-    bl_label = "Generate Collection"
-    bl_idname = "opr.imgcol_generate"
+    bl_label = "Generate Packed Image"
+    bl_idname = "opr.image_packer_generate"
 
     @classmethod
     def poll(cls, context):
-        return context.scene.col_list
+        return context.scene.image_packer_packing_list
         
     def execute(self, context):
         scene = context.scene
-        ImgCol = scene.ImgCol
+        image_packer = scene.image_packer
 
         img_list = []
-        for img in context.scene.col_list:
+        for img in context.scene.image_packer_packing_list:
             img_list.append(img["image"])
 
-        if ImgCol.random_order:
-            RandomizeImageOrder(img_list)
+        if image_packer.random_order:
+            shuffle_packing_list(img_list)
 
-        match ImgCol.packing_mode:
+        match image_packer.packing_mode:
             case "square_packing":
-                SquarePacking(img_list, ImgCol)
+                SquarePacking(img_list, image_packer)
             case "auto_sort":
-                AutoSort(img_list, ImgCol)
+                AutoSort(img_list, image_packer)
             case "row_packing":
-                RowPacking(img_list, ImgCol)
+                RowPacking(img_list, image_packer)
             case "nextfit_packing":
-                NextFitPacking(img_list, ImgCol)
+                NextFitPacking(img_list, image_packer)
         if GetActiveImage() == None:
-            col_img = bpy.data.images.get(ImgCol.col_name)
-            bpy.context.area.spaces.active.image = col_img
+            packed_img = bpy.data.images.get(image_packer.image_pack_name)
+            bpy.context.area.spaces.active.image = packed_img
         return {"FINISHED"}
 
 
 class PreviewOpr(Operator):
-    bl_label = "Preview Collection"
-    bl_idname = "opr.imgcol_preview"
+    bl_label = "Preview Packed Image"
+    bl_idname = "opr.image_packer_preview"
 
     def execute(self, context):
-        PreviewColImage(bpy.data.images.get(
-            bpy.context.scene.ImgCol.col_name))
+        preview_packed_image(bpy.data.images.get(
+            bpy.context.scene.image_packer.image_pack_name))
         return {"FINISHED"}
 
 
 class RemoveColOpr(Operator):
-    bl_label = "remove Collection"
-    bl_idname = "opr.imgcol_remove"
+    bl_label = "Remove Packed Image"
+    bl_idname = "opr.image_packer_remove"
 
     def execute(self, context):
         try:
-            DeleteImage(bpy.data.images.get(
-                bpy.context.scene.ImgCol.col_name))
+            bpy.data.images.remove(bpy.data.images.get(
+                bpy.context.scene.image_packer.image_pack_name))
         except:
-            print("No collection found with the name: {}".format(bpy.context.scene.ImgCol.col_name))
+            print("No image found with the name: {}".format(bpy.context.scene.image_packer.image_pack_name))
         return {"FINISHED"}
 
 
 class AddImageOpr(Operator):
-    bl_label = "Add Image To Collection"
-    bl_idname = "opr.imgcol_add_image"
+    bl_label = "Add image to packing list."
+    bl_idname = "opr.image_packer_add_image"
 
     def execute(self, context):
-        col_list = context.scene.col_list
+        packing_list = context.scene.image_packer_packing_list
         new_image = GetActiveImage()
 
         name_list = []
-        for item in col_list:
+        for item in packing_list:
             name_list.append(item.name)
 
         if new_image.name not in name_list:
-            col_list.add()
-            col_list[-1].image = new_image
-            col_list[-1].name = new_image.name
+            packing_list.add()
+            packing_list[-1].image = new_image
+            packing_list[-1].name = new_image.name
 
         return {"FINISHED"}
 
 
 class RemoveImageOpr(Operator):
-    bl_label = "Removes selected image from collection"
-    bl_idname = "opr.imgcol_remove_image"
+    bl_label = "Removes selected image from packing list."
+    bl_idname = "opr.image_packer_remove_image"
 
     @classmethod
     def poll(cls, context):
-        return context.scene.col_list
+        return context.scene.image_packer_packing_list
 
     def execute(self, context):
-        col_list = context.scene.col_list
-        index = context.scene.col_list_index
+        packing_list = context.scene.image_packer_packing_list
+        index = context.scene.image_packer_packing_list
 
-        col_list.remove(index)
-        context.scene.col_list_index = min(
-            max(0, index - 1), len(col_list) - 1)
+        packing_list.remove(index)
+        context.scene.image_packer_packing_list = min(
+            max(0, index - 1), len(packing_list) - 1)
 
         return {'FINISHED'}
 
 
-class ClearColOpr(Operator):
-    bl_label = "Clears all images in the collection"
-    bl_idname = "opr.imgcol_clear"
+class ClearPackingListOpr(Operator):
+    bl_label = "Clears all images in the packing list."
+    bl_idname = "opr.image_packer_clear"
 
     @classmethod
     def poll(cls, context):
-        return context.scene.col_list
+        return context.scene.image_packer_packing_list
 
     def execute(self, context):
-        context.scene.col_list.clear()
-        context.scene.col_list_index = 0
+        context.scene.image_packer_packing_list.clear()
+        context.scene.image_packer_packing_list_index = 0
         return {'FINISHED'}
 
 
 class MoveItemOpr(Operator):
-    bl_label = "Move an item in the collection"
-    bl_idname = "opr.imgcol_move_item"
+    bl_label = "Move an item in the packing list"
+    bl_idname = "opr.image_packer_move_item"
 
     direction: bpy.props.EnumProperty(
         items=(('UP', 'Up', ""),
@@ -136,70 +135,70 @@ class MoveItemOpr(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.col_list
+        return context.scene.image_packer_packing_list
 
     def move_index(self):
         """ Move index of an item render queue while clamping it. """
 
-        index = bpy.context.scene.col_list_index
-        list_length = len(bpy.context.scene.col_list) - \
+        index = bpy.context.scene.image_packer_packing_list
+        list_length = len(bpy.context.scene.image_packer_packing_list) - \
             1  # (index starts at 0)
         new_index = index + (-1 if self.direction == 'UP' else 1)
 
-        bpy.context.scene.col_list_index = max(0, min(new_index, list_length))
+        bpy.context.scene.image_packer_packing_list = max(0, min(new_index, list_length))
 
     def execute(self, context):
-        col_list = context.scene.col_list
-        index = context.scene.col_list_index
+        packing_list = context.scene.image_packer_packing_list
+        index = context.scene.image_packer_packing_list
 
         neighbor = index + (-1 if self.direction == 'UP' else 1)
-        col_list.move(neighbor, index)
+        packing_list.move(neighbor, index)
         self.move_index()
 
         return {'FINISHED'}
 
 
 class RemoveOtherImgOpr(Operator):
-    bl_label = "remove Other Images not in the collection list"
-    bl_idname = "opr.imgcol_remove_other_imgs"
+    bl_label = "Remove images which are not in the packing list."
+    bl_idname = "opr.image_packer_remove_other_imgs"
 
     def execute(self, context):
         scene = context.scene
 
-        col_list = scene.col_list
+        packing_list = scene.image_packer_packing_list
         name_list = []
-        for item in col_list:
+        for item in packing_list:
             name_list.append(item.name)
 
         all_images = bpy.data.images
         for image in all_images:
-            if not (image.name in name_list or image.name == scene.ImgCol.col_name):
+            if not (image.name in name_list or image.name == scene.image_packer.image_pack_name):
                 all_images.remove(image)
 
         return {"FINISHED"}
 
 
 class MakeTestShapesOpr(Operator):
-    bl_label = "Generate Collection"
-    bl_idname = "opr.imgcol_make_testshapes"
+    bl_label = "Make test shapes and add them to the packing list."
+    bl_idname = "opr.image_packer_make_testshapes"
 
     def execute(self, context):
-        ImgCol = context.scene.ImgCol
-        col_list = context.scene.col_list
+        image_packer = context.scene.image_packer
+        packing_list = context.scene.image_packer_packing_list
 
-        min_size = [ImgCol.min_width, ImgCol.min_height]
-        max_size = [ImgCol.max_width, ImgCol.max_height]
+        min_size = [image_packer.min_width, image_packer.min_height]
+        max_size = [image_packer.max_width, image_packer.max_height]
 
-        img_list = CreateTestImgs(ImgCol.amount, min_size, max_size)
+        img_list = CreateTestImgs(image_packer.amount, min_size, max_size)
 
         name_list = []
-        for item in col_list:
+        for item in packing_list:
             name_list.append(item.name)
         for img in img_list:
             if img.name not in name_list:
-                col_list.add()
-                col_list[-1].image = img
-                col_list[-1].name = img.name
+                packing_list.add()
+                packing_list[-1].image = img
+                packing_list[-1].name = img.name
         return {"FINISHED"}
 
 
@@ -209,7 +208,7 @@ classes = (
     RemoveColOpr,
     AddImageOpr,
     RemoveImageOpr,
-    ClearColOpr,
+    ClearPackingListOpr,
     MoveItemOpr,
     RemoveOtherImgOpr,
     MakeTestShapesOpr,

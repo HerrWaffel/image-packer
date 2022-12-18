@@ -43,7 +43,7 @@ def RGB_lerp(a, b, alpha):
     return out_color
 
 
-def GetMedian(n_list):
+def median_of_list(n_list):
     n_list.sort()
     mid = len(n_list) // 2
     return (n_list[mid] + n_list[~mid]) / 2
@@ -55,8 +55,7 @@ def GetActiveImage():
             return area.spaces.active.image
 
 
-def PreviewColImage(col_image):
-    # Open new window and set to collection image
+def preview_packed_image(packed_image):
     # Add option to switch between open Image Editor or new floating window
     # Call user prefs window
     bpy.ops.screen.userpref_show('INVOKE_DEFAULT')
@@ -66,23 +65,19 @@ def PreviewColImage(col_image):
     area.type = 'IMAGE_EDITOR'
 
     # Assign the image
-    bpy.context.area.spaces.active.image = col_image
+    bpy.context.area.spaces.active.image = packed_image
 
 
-def DeleteImage(img):
-    bpy.data.images.remove(img)
-
-
-def RandomizeImageOrder(img_list):
-    random.seed(bpy.context.scene.ImgCol.random_seed)
+def shuffle_packing_list(img_list):
+    random.seed(bpy.context.scene.image_packer.random_seed)
     return random.shuffle(img_list)
 
 
 def CreateTestImgs(amount, min_size, max_size):
     img_list = []
-    random.seed(bpy.context.scene.ImgCol.test_seed)
-    color_1 = bpy.context.scene.ImgCol.end_color
-    color_2 = bpy.context.scene.ImgCol.start_color
+    random.seed(bpy.context.scene.image_packer.test_seed)
+    color_1 = bpy.context.scene.image_packer.end_color
+    color_2 = bpy.context.scene.image_packer.start_color
 
     for i in range(amount):
         name = "testshape_{}".format(i)

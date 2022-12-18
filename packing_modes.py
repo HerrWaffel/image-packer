@@ -4,7 +4,7 @@ import numpy as np
 from math import ceil, floor, sqrt
 from operator import mod
 from .dependencies import rpack
-from .utils import GetMedian
+from .utils import median_of_list
 from mathutils import Color
 
 
@@ -14,28 +14,28 @@ def remove_imgs(imgs):
 
 
 def get_srgba_bg_color():
-    bg_linear_RGBA = bpy.context.scene.ImgCol.bg_color
+    bg_linear_RGBA = bpy.context.scene.image_packer.bg_color
     RGB = bg_linear_RGBA[:-1]
     color = Color(RGB).from_scene_linear_to_srgb()
     return (color[0], color[1], color[2], bg_linear_RGBA[3])
 
 
-def make_col_img(col_name, col_size):
-    if col_name in bpy.data.images:
-        col_img = bpy.data.images[col_name]
-        col_img.scale(col_size[0], col_size[1])
+def make_packed_image(name, size):
+    if name in bpy.data.images:
+        packed_image = bpy.data.images[name]
+        packed_image.scale(size[0], size[1])
     else:
-        col_img = bpy.data.images.new(col_name, width=col_size[0], height=col_size[1])
+        packed_image = bpy.data.images.new(name, width=size[0], height=size[1])
 
-    # prepare col_pixels array
-    col_pixels = np.ones((col_size[1], col_size[0], 4), 'f')
-    col_pixels[:, :, :] = get_srgba_bg_color()
+    # prepare packed_pixels array
+    packed_pixels = np.ones((size[1], size[0], 4), 'f')
+    packed_pixels[:, :, :] = get_srgba_bg_color()
 
-    return col_img, col_pixels
+    return packed_image, packed_pixels
 
 
-def update_col_pixels(col_img, col_pixels, imgs, imgs_pos):
-    col_h = col_img.size[1]
+def update_col_pixels(packed_image, packed_pixels, imgs, imgs_pos):
+    packed_h = packed_image.size[1]
 
     for i in range(len(imgs)):
         img = imgs[i]
@@ -44,18 +44,17 @@ def update_col_pixels(col_img, col_pixels, imgs, imgs_pos):
         
         img_pixels = np.ones((h, w, 4), 'f')
         img.pixels.foreach_get(img_pixels.ravel())
-        #img_pixels[:, :, 3] = 1
-        col_pixels[col_h-(y+h): col_h-y, x: x+w, :4] = img_pixels
+        packed_pixels[packed_h-(y+h): packed_h-y, x: x+w, :4] = img_pixels
 
-    col_img.pixels.foreach_set(col_pixels.ravel())
-    col_img.update()
+    packed_image.pixels.foreach_set(packed_pixels.ravel())
+    packed_image.update()
 
 
-def get_square_imgs_pos(imgs, col_cells):
+def get_square_imgs_pos(imgs, squares):
     imgs_pos = []
     for i in range(len(imgs)):
-        x = mod(i, col_cells) * imgs[i].size[0]
-        y = floor(i / col_cells) * imgs[i].size[1]
+        x = mod(i, squares) * imgs[i].size[0]
+        y = floor(i / squares) * imgs[i].size[1]
         imgs_pos.append((x, y))
     return imgs_pos
 
@@ -82,7 +81,7 @@ def med_ratio_from_size(sizes):
     ratios = []
     for size in sizes:
         ratios.append(size[0] / size[1])
-    return GetMedian(ratios)
+    return median_of_list(ratios)
 
 
 def areas_from_size(sizes):
@@ -92,36 +91,36 @@ def areas_from_size(sizes):
     return areas
 
 
-def SquarePacking(img_list, ImgCol):
-    size = ImgCol.img_size
-    padding = ImgCol.padding
+def SquarePacking(packing_list, image_packer):
+    img_size = image_packer.img_size
+    padding = image_packer.padding
 
-    col_cells = ceil( sqrt( len(img_list)))
-    col_size = (size + 2*padding) * col_cells
+    squares = ceil( sqrt( len(packing_list)))
+    max_w = (img_size + 2*padding) * squares
 
     temp_imgs = []
-    for img in img_list:
+    for img in packing_list:
         temp_img = bpy.data.images.new(
             img.name + "_temp", width=img.size[0], height=img.size[1])
         temp_img.pixels[:] = img.pixels
-        temp_img.scale(size, size)
+        temp_img.scale(img_size, img_size)
         add_padding_img(temp_img, padding)
         temp_imgs.append(temp_img)
 
-    imgs_pos = get_square_imgs_pos(temp_imgs,col_cells)
-    col_img, col_pixels = make_col_img(ImgCol.col_name, (col_size, col_size))
+    imgs_pos = get_square_imgs_pos(temp_imgs, squares)
+    col_img, col_pixels = make_packed_image(image_packer.image_pack_name, (max_w, max_w))
     update_col_pixels(col_img, col_pixels, temp_imgs, imgs_pos)
     remove_imgs(temp_imgs)
 
 
-def AutoSort(img_list, ImgCol):
+def AutoSort(packing_list, image_packer):
     sizes = []
     temp_imgs = []
-    for img in img_list:
+    for img in packing_list:
         temp_img = bpy.data.images.new(
             img.name + "_temp", width=img.size[0], height=img.size[1])
         temp_img.pixels[:] = img.pixels
-        add_padding_img(temp_img, ImgCol.padding)
+        add_padding_img(temp_img, image_packer.padding)
         temp_imgs.append(temp_img)
 
         w, h = temp_img.size
@@ -136,27 +135,27 @@ def AutoSort(img_list, ImgCol):
     max_width = ceil(area / max_height)
 
     imgs_pos = rpack.pack(sizes, max_width, max_height)
-    col_size = rpack.bbox_size(sizes, imgs_pos)
+    size = rpack.bbox_size(sizes, imgs_pos)
 
-    col_img, col_pixels = make_col_img(ImgCol.col_name, col_size)
-    update_col_pixels(col_img, col_pixels, temp_imgs, imgs_pos)
+    packed_image, packed_pixels = make_packed_image(image_packer.image_pack_name, size)
+    update_col_pixels(packed_image, packed_pixels, temp_imgs, imgs_pos)
     remove_imgs(temp_imgs)
 
 
-def RowPacking(img_list, ImgCol):
-    mode = ImgCol.side_mode
-    padding = ImgCol.padding
+def RowPacking(packing_list, image_packer):
+    mode = image_packer.side_mode
+    padding = image_packer.padding
 
-    height_mode = "height" in ImgCol.side
+    height_mode = "height" in image_packer.side
     
-    # fills total_side with height or width of img_list
+    # fills total_side with height or width of packing_list
     total_side = []
-    for img in img_list:
+    for img in packing_list:
         total_side.append( img.size[ int(height_mode)])
 
     # set side length based on packing mode
     if "med" in mode:
-        side = ceil( GetMedian(total_side))
+        side = ceil( median_of_list(total_side))
     elif "avg" in mode:
         side = ceil( sum(total_side) / len(total_side))
     elif "min" in mode:
@@ -164,12 +163,12 @@ def RowPacking(img_list, ImgCol):
     elif "max" in mode:
         side = max(total_side)
     else:
-        side = ImgCol.side_length
+        side = image_packer.side_length
 
     # make temp imgs based on side and img aspect ratio
     sizes = []
     temp_imgs = []
-    for img in img_list:
+    for img in packing_list:
         if height_mode:
             w = ceil(img.size[0] * (side / img.size[1]))
             h = side
@@ -203,19 +202,19 @@ def RowPacking(img_list, ImgCol):
     if height_mode:
         # Initialize the current position and the maximum width and height
         x = y = 0
-        col_w = 0
+        max_w = 0
         for temp_img in temp_imgs:
             w, h = temp_img.size
             # Check if the img fits within the current position
             if x + w > threshold:
                 # The img doesn't fit, so start a new line
-                col_w = max(col_w, x)
+                max_w = max(max_w, x)
                 x = 0
                 y += h
             # The img fits, so place it at the current position
             imgs_pos.append((x, y))
             x += w
-        col_h = max(imgs_pos, key=lambda x: x[1])[1] + h
+        max_h = max(imgs_pos, key=lambda x: x[1])[1] + h
 
     # Keep track of img heights per row to place the next row on.
     # Crop to last row max height to remove empty space.
@@ -232,18 +231,18 @@ def RowPacking(img_list, ImgCol):
             imgs_pos.append((width, height))
             heights[col_index] += h
 
-        col_w = side * sides
-        col_h = max(heights)
+        max_w = side * sides
+        max_h = max(heights)
 
-    col_img, col_pixels = make_col_img(ImgCol.col_name, (col_w, col_h))
-    update_col_pixels(col_img, col_pixels, temp_imgs, imgs_pos)
+    packed_image, packed_pixels = make_packed_image(image_packer.image_pack_name, (max_w, max_h))
+    update_col_pixels(packed_image, packed_pixels, temp_imgs, imgs_pos)
     remove_imgs(temp_imgs)
 
 
 def pack_rectangles(imgs, max_width, max_height):
     x = 0  # Start the current position at (0, 0)
     y = 0
-    corners = []  # Initialize the list of corners
+    imgs_pos = []  # Initialize the list of imgs_pos
     row_heights = []  # Initialize the list of row heights
     max_w = 0  # Initialize the maximum width
     max_h = 0  # Initialize the maximum height
@@ -253,7 +252,7 @@ def pack_rectangles(imgs, max_width, max_height):
         # Check if the img fits within the current position
         if img.size[0] <= max_width - x and img.size[1] <= max_height - y:
             # The img fits, so add its corner to the list
-            corners.append((x, y))
+            imgs_pos.append((x, y))
             x += img.size[0]  # Update the current position
             row_heights.append(y + img.size[1])  # Update the row height
             max_w = max(max_w, x)  # Update the maximum width
@@ -262,24 +261,24 @@ def pack_rectangles(imgs, max_width, max_height):
             # The img doesn't fit, so start a new line
             x = 0
             y = max(row_heights)  # Start the new line at the maximum row height
-            corners.append((x, y))
+            imgs_pos.append((x, y))
             x += img.size[0]  # Update the current position
             row_heights.append(y + img.size[1])  # Update the row height
             max_w = max(max_w, x)  # Update the maximum width
             max_h = max(max_h, y + img.size[1])  # Update the maximum height
 
-    # At this point, the corners list contains the lower left corners of the packed rectangles
+    # At this point, the imgs_pos list contains the lower left corners of the packed rectangles
     # and max_w and max_h contain the maximum width and height of the packed rectangles
-    return corners, max_w, max_h
+    return imgs_pos, max_w, max_h
 
-def NextFitPacking(img_list, ImgCol):
+def NextFitPacking(packing_list, image_packer):
     sizes = []
     temp_imgs = []
-    for img in img_list:
+    for img in packing_list:
         temp_img = bpy.data.images.new(
             img.name + "_temp", width=img.size[0], height=img.size[1])
         temp_img.pixels[:] = img.pixels
-        add_padding_img(temp_img, ImgCol.padding)
+        add_padding_img(temp_img, image_packer.padding)
         temp_imgs.append(temp_img)
 
         w, h = temp_img.size
@@ -294,7 +293,7 @@ def NextFitPacking(img_list, ImgCol):
     max_width = ceil(area / max_height)
 
     imgs_pos, max_w, max_h = pack_rectangles(temp_imgs, max_width, max_height)
-    colsize = (max_w, max_h)
-    col_img, col_pixels = make_col_img(ImgCol.col_name, colsize)
-    update_col_pixels(col_img, col_pixels, temp_imgs, imgs_pos)
+    size = (max_w, max_h)
+    packed_image, packed_pixels = make_packed_image(image_packer.image_pack_name, size)
+    update_col_pixels(packed_image, packed_pixels, temp_imgs, imgs_pos)
     remove_imgs(temp_imgs)

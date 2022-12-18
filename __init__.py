@@ -1,6 +1,6 @@
 bl_info = {
-    "name": "Generate Image Collection",
-    "description": "Add images to a collection and generate a image of the collection",
+    "name": "Image Packer",
+    "description": "Combine multiple images into a single image using different packing algorithms",
     "author": "Quint Vrolijk",
     "version": (1, 0, 0),
     "blender": (3, 0, 0),
