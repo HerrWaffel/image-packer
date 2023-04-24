@@ -55,17 +55,19 @@ def GetActiveImage():
             return area.spaces.active.image
 
 
-def preview_packed_image(packed_image):
-    # Add option to switch between open Image Editor or new floating window
-    # Call user prefs window
-    bpy.ops.screen.userpref_show('INVOKE_DEFAULT')
+def preview_packed_image(packed_image, preview_window):
+    if preview_window:
+        # Call user prefs window
+        bpy.ops.screen.userpref_show('INVOKE_DEFAULT')
 
-    # Change area type
-    area = bpy.context.window_manager.windows[-1].screen.areas[0]
-    area.type = 'IMAGE_EDITOR'
+        # Change area type
+        area = bpy.context.window_manager.windows[-1].screen.areas[0]
+        area.type = 'IMAGE_EDITOR'
 
-    # Assign the image
-    bpy.context.area.spaces.active.image = packed_image
+        # Assign the image
+        bpy.context.area.spaces.active.image = packed_image
+    else:
+        bpy.context.area.spaces.active.image = packed_image
 
 
 def shuffle_packing_list(img_list):

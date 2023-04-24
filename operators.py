@@ -55,8 +55,10 @@ class PreviewOpr(Operator):
     bl_description = "Opens the generated image in the active or new window"
 
     def execute(self, context):
-        preview_packed_image(bpy.data.images.get(
-            bpy.context.scene.image_packer.image_pack_name))
+        scene = context.scene
+        image_packer = scene.image_packer
+
+        preview_packed_image(bpy.data.images.get(image_packer.image_pack_name), image_packer.preview_window)
         return {"FINISHED"}
 
 

@@ -67,6 +67,7 @@ class IMAGE_PT_image_packer(bpy.types.Panel):
             row.prop(item, "image")
         layout.separator(factor=0.5)
 
+        # Packing Options
         box = layout.box()
         box.alignment = 'RIGHT'
         row = box.row(align=True)
@@ -105,6 +106,9 @@ class IMAGE_PT_ExtraOptions(bpy.types.Panel):
     def draw(self, context):
         image_packer = context.scene.image_packer
         layout = self.layout
+
+        row = layout.row()
+        row.prop(image_packer, "preview_window")
 
         row = layout.row()
         row.operator("opr.image_packer_remove_other_imgs",
