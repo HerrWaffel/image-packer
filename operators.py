@@ -150,16 +150,16 @@ class MoveItemOpr(Operator):
     def move_index(self):
         """ Move index of an item render queue while clamping it. """
 
-        index = bpy.context.scene.image_packer_packing_list
-        list_length = len(bpy.context.scene.image_packer_packing_list) - \
-            1  # (index starts at 0)
+        list_length = len(bpy.context.sceneimage_packer_packing_list) - 1  # (index starts at 0)
+        index = bpy.context.scene.image_packer_packing_list_index
         new_index = index + (-1 if self.direction == 'UP' else 1)
 
-        bpy.context.scene.image_packer_packing_list = max(0, min(new_index, list_length))
+        new_index = max(0, min(new_index, list_length))
+        bpy.context.scene.image_packer_packing_list_index = new_index
 
     def execute(self, context):
         packing_list = context.scene.image_packer_packing_list
-        index = context.scene.image_packer_packing_list
+        index = context.scene.image_packer_packing_list_index
 
         neighbor = index + (-1 if self.direction == 'UP' else 1)
         packing_list.move(neighbor, index)
