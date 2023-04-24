@@ -20,19 +20,19 @@ class PackItem(bpy.types.PropertyGroup):
 class ImagePacker(bpy.types.PropertyGroup):
     packing_modes = [
         ('square_packing', "Square Packing", 
-        "Keeps the images in order of the images list, scales all images to the same size and makes a 1:1 packed image."),
+        "Keeps the images in order of the images list, scales all images to the same size and makes a 1:1 packed image"),
         ('auto_sort', "Auto Sort", 
-        "Keeps the size of the images but doesn't follow the order of the images list."),
+        "Keeps the size of the images but doesn't follow the order of the images list"),
         ('row_packing', "Row Packing", 
-        "Keeps the images in order of the images list and scales images to have the same width or height."),
+        "Keeps the images in order of the images list and scales images to have the same width or height"),
         ('nextfit_packing', "Next Fit Packing",
-        "Keeps the size of the images and follows the order of the images list, but may result in gaps between the rows."),
+        "Keeps the size of the images and follows the order of the images list, but may result in gaps between the rows"),
     ]
 
     packing_mode: EnumProperty(
         name="Packing Mode",
         items=packing_modes,
-        description="Change the algorithm for packing the images."
+        description="Change the algorithm for packing the images"
     )
 
     side: EnumProperty(
@@ -41,7 +41,7 @@ class ImagePacker(bpy.types.PropertyGroup):
         ('width', "Width", "Width"),
         ('height', "Height", "Height"),
         ],
-        description="Scales images based on the selected side mode."
+        description="Scales images based on the selected side mode"
     )
 
     side_mode: EnumProperty(
@@ -53,10 +53,9 @@ class ImagePacker(bpy.types.PropertyGroup):
         ('med', "Median", ""),
         ('custom', "Custom", ""),
         ],
-        description="Sets the length of the side and scales images based on aspect ratio."
+        description="Sets the length of the side and scales images based on aspect ratio"
     )
 
-    # Name
     image_pack_name: StringProperty(
         name="Name",
         default="New Packed Image"
@@ -74,7 +73,8 @@ class ImagePacker(bpy.types.PropertyGroup):
     padding: IntProperty(
         name="Padding",
         default=0,
-        min=0
+        min=0,
+        description="Adds padding to each image in the collection"
     )
 
     img_size: IntProperty(
@@ -82,7 +82,7 @@ class ImagePacker(bpy.types.PropertyGroup):
         default=512,
         min=1,
         step=1,
-        description="The width and height of each image."
+        description="The width and height of each image"
     )
 
     side_length: IntProperty(
@@ -90,20 +90,21 @@ class ImagePacker(bpy.types.PropertyGroup):
         default=512,
         min=1,
         step=1,
-        description="The length of the width/height for each image."
+        description="The length of the width/height for each image"
     )
 
     # Random
     random_order: BoolProperty(
         name="Random Order",
         default=False,
-        description="Should the images be placed in order or be randomized."
+        description="Should the images be placed in order or be randomized"
     )
     random_seed: IntProperty(
         name="Random Seed",
         default=0,
         step=1,
-        description="Seed for random order."
+        description="Seed for random order"
+    )
     )
 
     # Test Shapes

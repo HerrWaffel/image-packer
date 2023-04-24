@@ -17,6 +17,7 @@ from .packing_modes import (
 class GenerateOpr(Operator):
     bl_label = "Generate Packed Image"
     bl_idname = "opr.image_packer_generate"
+    bl_description = "Packs all the images from the packing list and generates a new image based on the packing settings"
 
     @classmethod
     def poll(cls, context):
@@ -51,6 +52,7 @@ class GenerateOpr(Operator):
 class PreviewOpr(Operator):
     bl_label = "Preview Packed Image"
     bl_idname = "opr.image_packer_preview"
+    bl_description = "Opens the generated image in the active or new window"
 
     def execute(self, context):
         preview_packed_image(bpy.data.images.get(
@@ -61,6 +63,7 @@ class PreviewOpr(Operator):
 class RemoveColOpr(Operator):
     bl_label = "Remove Packed Image"
     bl_idname = "opr.image_packer_remove"
+    bl_description = "Removes the generated based on the name"
 
     def execute(self, context):
         try:
@@ -72,8 +75,9 @@ class RemoveColOpr(Operator):
 
 
 class AddImageOpr(Operator):
-    bl_label = "Add image to packing list."
+    bl_label = "Add image to packing list"
     bl_idname = "opr.image_packer_add_image"
+    bl_description = "Adds the current active image to the packing list"
 
     def execute(self, context):
         packing_list = context.scene.image_packer_packing_list
@@ -89,11 +93,12 @@ class AddImageOpr(Operator):
             packing_list[-1].name = new_image.name
 
         return {"FINISHED"}
-
+    
 
 class RemoveImageOpr(Operator):
-    bl_label = "Removes selected image from packing list."
+    bl_label = "Removes image from packing list"
     bl_idname = "opr.image_packer_remove_image"
+    bl_description = "Removes the current active image from the packing list"
 
     @classmethod
     def poll(cls, context):
@@ -101,18 +106,19 @@ class RemoveImageOpr(Operator):
 
     def execute(self, context):
         packing_list = context.scene.image_packer_packing_list
-        index = context.scene.image_packer_packing_list
+        index = context.scene.image_packer_packing_list_index
 
         packing_list.remove(index)
-        context.scene.image_packer_packing_list = min(
+        context.scene.image_packer_packing_list_index = min(
             max(0, index - 1), len(packing_list) - 1)
-
+        
         return {'FINISHED'}
 
 
 class ClearPackingListOpr(Operator):
-    bl_label = "Clears all images in the packing list."
+    bl_label = "Clear the packing list"
     bl_idname = "opr.image_packer_clear"
+    bl_description = "Removes all images from the packing list"
 
     @classmethod
     def poll(cls, context):
@@ -121,12 +127,14 @@ class ClearPackingListOpr(Operator):
     def execute(self, context):
         context.scene.image_packer_packing_list.clear()
         context.scene.image_packer_packing_list_index = 0
+
         return {'FINISHED'}
 
 
 class MoveItemOpr(Operator):
     bl_label = "Move an item in the packing list"
     bl_idname = "opr.image_packer_move_item"
+    bl_description = "Changes the order of the selected item in the packing list"
 
     direction: bpy.props.EnumProperty(
         items=(('UP', 'Up', ""),
@@ -159,8 +167,9 @@ class MoveItemOpr(Operator):
 
 
 class RemoveOtherImgOpr(Operator):
-    bl_label = "Remove images which are not in the packing list."
+    bl_label = "Remove unused images in blend file"
     bl_idname = "opr.image_packer_remove_other_imgs"
+    bl_description = "Removes all images in the blend file which are not in the packing list"
 
     def execute(self, context):
         scene = context.scene
@@ -179,8 +188,9 @@ class RemoveOtherImgOpr(Operator):
 
 
 class MakeTestShapesOpr(Operator):
-    bl_label = "Make test shapes and add them to the packing list."
+    bl_label = "Generates test shapes"
     bl_idname = "opr.image_packer_make_testshapes"
+    bl_description = "Makes test shapes and add them to the packing list"
 
     def execute(self, context):
         image_packer = context.scene.image_packer
@@ -199,6 +209,7 @@ class MakeTestShapesOpr(Operator):
                 packing_list.add()
                 packing_list[-1].image = img
                 packing_list[-1].name = img.name
+
         return {"FINISHED"}
 
 
