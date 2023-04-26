@@ -1,5 +1,6 @@
 import bpy
 from bpy.types import Operator
+from bpy.props import StringProperty
 from .utils import (
     GetActiveImage, 
     shuffle_packing_list, 
@@ -76,61 +77,64 @@ class RemoveColOpr(Operator):
         return {"FINISHED"}
 
 
-class AddImageOpr(Operator):
-    bl_label = "Add image to packing list"
-    bl_idname = "opr.image_packer_add_image"
-    bl_description = "Adds the current active image to the packing list"
+class AddToListOpr(Operator):
+    bl_label = "Add to list"
+    bl_idname = "opr.add_to_list"
+    bl_description = "Adds the current active item to a specified list"
+
+    list_name: StringProperty(default="image_packer_packing_list")
 
     def execute(self, context):
-        packing_list = context.scene.image_packer_packing_list
-        new_image = GetActiveImage()
+        the_list = getattr(context.scene, self.list_name)
+        new_item = GetActiveImage()
 
         name_list = []
-        for item in packing_list:
+        for item in the_list:
             name_list.append(item.name)
 
-        if new_image.name not in name_list:
-            packing_list.add()
-            packing_list[-1].image = new_image
-            packing_list[-1].name = new_image.name
+        if new_item.name not in name_list:
+            the_list.add()
+            the_list[-1].item = new_item
+            the_list[-1].name = new_item.name
 
         return {"FINISHED"}
     
 
-class RemoveImageOpr(Operator):
-    bl_label = "Removes image from packing list"
-    bl_idname = "opr.image_packer_remove_image"
-    bl_description = "Removes the current active image from the packing list"
+class RemoveFromListOpr(Operator):
+    bl_label = "Remove from list"
+    bl_idname = "opr.remove_from_list"
+    bl_description = "Removes the current active item from a specified list"
+
+    list_name: StringProperty(default="image_packer_packing_list")
 
     @classmethod
     def poll(cls, context):
         return context.scene.image_packer_packing_list
 
     def execute(self, context):
-        packing_list = context.scene.image_packer_packing_list
-        index = context.scene.image_packer_packing_list_index
+        the_list = getattr(context.scene, self.list_name)
+        index = getattr(context.scene, f"{self.list_name}_index")
 
-        packing_list.remove(index)
-        context.scene.image_packer_packing_list_index = min(
-            max(0, index - 1), len(packing_list) - 1)
-        
+        the_list.remove(index)
+        setattr(context.scene, f"{self.list_name}_index", min(max(0, index - 1), len(the_list) - 1))
+
         return {'FINISHED'}
 
 
-class ClearPackingListOpr(Operator):
-    bl_label = "Clear the packing list"
-    bl_idname = "opr.image_packer_clear"
-    bl_description = "Removes all images from the packing list"
+class ClearListOpr(Operator):
+    bl_label = "Clear list"
+    bl_idname = "opr.clear_list"
+    bl_description = "Removes all items from a specified list"
 
-    @classmethod
-    def poll(cls, context):
-        return context.scene.image_packer_packing_list
+    list_name: StringProperty(default="image_packer_packing_list")
 
     def execute(self, context):
-        context.scene.image_packer_packing_list.clear()
-        context.scene.image_packer_packing_list_index = 0
+        the_list = getattr(context.scene, self.list_name)
+        the_list.clear()
+        setattr(context.scene, f"{self.list_name}_index", 0)
 
         return {'FINISHED'}
+
 
 
 class MoveItemOpr(Operator):
@@ -219,9 +223,9 @@ classes = (
     GenerateOpr,
     PreviewOpr,
     RemoveColOpr,
-    AddImageOpr,
-    RemoveImageOpr,
-    ClearPackingListOpr,
+    AddToListOpr,
+    RemoveFromListOpr,
+    ClearListOpr,
     MoveItemOpr,
     RemoveOtherImgOpr,
     MakeTestShapesOpr,
@@ -230,6 +234,8 @@ classes = (
 
 def register():
     for cls in classes:
+        if (cls == RemoveFromListOpr):
+            print("Registering operator:", cls.bl_idname, "list_name:", cls.list_name)  # add this line
         bpy.utils.register_class(cls)
 
 

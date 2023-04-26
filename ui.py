@@ -56,11 +56,11 @@ class IMAGE_PT_image_packer(bpy.types.Panel):
         row.operator("opr.image_packer_move_item", text="",
                      icon="TRIA_DOWN").direction = "DOWN"
 
-        # Image Options
+        # Packing List Options
         row = box.row()
-        row.operator("opr.image_packer_add_image", text="Add")
-        row.operator("opr.image_packer_remove_image", text="Remove")
-        row.operator("opr.image_packer_clear", text="Clear")
+        row.operator("opr.add_to_list", text="Add").list_name = "image_packer_packing_list"
+        row.operator("opr.remove_from_list", text="Remove").list_name = "image_packer_packing_list"
+        row.operator("opr.clear_list", text="Clear").list_name = "image_packer_packing_list"
         if scene.image_packer_packing_list_index >= 0 and scene.image_packer_packing_list:
             item = scene.image_packer_packing_list[scene.image_packer_packing_list_index]
             row = box.row()
@@ -104,11 +104,22 @@ class IMAGE_PT_ExtraOptions(bpy.types.Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
-        image_packer = context.scene.image_packer
+        scene = context.scene
+        image_packer = scene.image_packer
         layout = self.layout
 
         row = layout.row()
         row.prop(image_packer, "preview_window")
+
+        box = layout.box()
+        row = box.row()
+        row.template_list("IMAGE_UL_PackingList", "Exlude List", scene,
+                          "image_packer_exclude_list", scene, "image_packer_exclude_list_index")
+        # Exclude List Options
+        row = box.row()
+        row.operator("opr.add_to_list", text="Add").list_name = "image_packer_exclude_list"
+        row.operator("opr.remove_from_list", text="Remove").list_name = "image_packer_exclude_list"
+        row.operator("opr.clear_list", text="Clear").list_name = "image_packer_exclude_list"
 
         row = layout.row()
         row.operator("opr.image_packer_remove_other_imgs",

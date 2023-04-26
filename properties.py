@@ -178,9 +178,13 @@ def register():
         bpy.utils.register_class(cls)
 
     bpy.types.Scene.image_packer = PointerProperty(type=ImagePacker)
-
+    # List of images to pack
     bpy.types.Scene.image_packer_packing_list = CollectionProperty(type=PackItem)
     bpy.types.Scene.image_packer_packing_list_index = IntProperty(name="Index for packing_list",
+                                                 default=0)
+    # List of images not to delete from blend file.
+    bpy.types.Scene.image_packer_exclude_list = CollectionProperty(type=PackItem)
+    bpy.types.Scene.image_packer_exclude_list_index = IntProperty(name="Index for exclude_list",
                                                  default=0)
 
 
@@ -191,3 +195,5 @@ def unregister():
     del bpy.types.Scene.image_packer
     del bpy.types.Scene.image_packer_packing_list
     del bpy.types.Scene.image_packer_packing_list_index
+    del bpy.types.Scene.image_packer_exclude_list
+    del bpy.types.Scene.image_packer_exclude_list_index
