@@ -27,6 +27,7 @@ class GenerateOpr(Operator):
     def execute(self, context):
         scene = context.scene
         image_packer = scene.image_packer
+        pref = context.preferences.addons[__package__].preferences
 
         img_list = []
         for img in context.scene.image_packer_packing_list:
@@ -44,7 +45,9 @@ class GenerateOpr(Operator):
                 RowPacking(img_list, image_packer)
             case "nextfit_packing":
                 NextFitPacking(img_list, image_packer)
-        if GetActiveImage() == None:
+        
+        
+        if(pref.auto_open_preview or GetActiveImage() == None):
             packed_img = bpy.data.images.get(image_packer.image_pack_name)
             bpy.context.area.spaces.active.image = packed_img
         return {"FINISHED"}
@@ -55,9 +58,16 @@ class PreviewOpr(Operator):
     bl_idname = "opr.image_packer_preview"
     bl_description = "Opens the generated image in the active or new window"
 
+    @classmethod
+    def poll(cls, context):
+        return bpy.data.images.get(context.scene.image_packer.image_pack_name) is not None
+    
     def execute(self, context):
         scene = context.scene
         image_packer = scene.image_packer
+        pref = context.preferences.addons[__package__].preferences
+
+        preview_packed_image(bpy.data.images.get(image_packer.image_pack_name), pref.preview_window)
 
         preview_packed_image(bpy.data.images.get(image_packer.image_pack_name), image_packer.preview_window)
         return {"FINISHED"}

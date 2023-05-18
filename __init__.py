@@ -9,7 +9,7 @@ bl_info = {
 }
 
 import importlib
-from . import operators, properties, ui
+from . import operators, properties, ui, preferences
 from .dependencies import rpack
 
 
@@ -22,6 +22,7 @@ def register():
 	for module in modules:
 		importlib.reload(module)
 
+	preferences.register()
 	properties.register()
 	operators.register()
 	ui.register()
@@ -30,6 +31,7 @@ def unregister():
 	ui.unregister()
 	operators.unregister()
 	properties.unregister()
+	preferences.unregister()
 
 if __name__ == "__main__":
     register()
