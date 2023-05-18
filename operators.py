@@ -73,19 +73,20 @@ class PreviewOpr(Operator):
         return {"FINISHED"}
 
 
-class RemoveColOpr(Operator):
+class RemovePackedOpr(Operator):
     bl_label = "Remove Packed Image"
     bl_idname = "opr.image_packer_remove"
-    bl_description = "Removes the generated based on the name"
+    bl_description = "Removes the packed image based on the name"
 
+    @classmethod
+    def poll(cls, context):
+        return bpy.data.images.get(context.scene.image_packer.image_pack_name) is not None
+    
     def execute(self, context):
-        try:
-            bpy.data.images.remove(bpy.data.images.get(
-                bpy.context.scene.image_packer.image_pack_name))
-        except:
-            print("No image found with the name: {}".format(bpy.context.scene.image_packer.image_pack_name))
-        return {"FINISHED"}
+        bpy.data.images.remove(bpy.data.images.get(
+            context.scene.image_packer.image_pack_name))
 
+        return {"FINISHED"}
 
 # Packing List Operators
 class AddToPackingListOpr(Operator):
