@@ -30,7 +30,7 @@ class ImagePacker(bpy.types.PropertyGroup):
     ]
 
     packing_mode: EnumProperty(
-        name="Packing Mode",
+        name="Mode",
         items=packing_modes,
         description="Change the algorithm for packing the images"
     )
