@@ -77,65 +77,76 @@ class RemoveColOpr(Operator):
         return {"FINISHED"}
 
 
-class AddToListOpr(Operator):
-    bl_label = "Add to list"
-    bl_idname = "opr.add_to_list"
-    bl_description = "Adds the current active item to a specified list"
-
-    list_name: StringProperty(default="image_packer_packing_list")
-
-    def execute(self, context):
-        the_list = getattr(context.scene, self.list_name)
-        new_item = GetActiveImage()
-
-        name_list = []
-        for item in the_list:
-            name_list.append(item.name)
-
-        if new_item.name not in name_list:
-            the_list.add()
-            the_list[-1].item = new_item
-            the_list[-1].name = new_item.name
-
-        return {"FINISHED"}
-    
-
-class RemoveFromListOpr(Operator):
-    bl_label = "Remove from list"
-    bl_idname = "opr.remove_from_list"
-    bl_description = "Removes the current active item from a specified list"
-
-    list_name: StringProperty(default="image_packer_packing_list")
+# Packing List Operators
+class AddToPackingListOpr(Operator):
+    bl_label = "Add to packing list"
+    bl_idname = "opr.add_to_packing_list"
+    bl_description = "Adds the current active item to the packing list"
 
     @classmethod
     def poll(cls, context):
-        return context.scene.image_packer_packing_list
+        return context.scene.image_packer_packing_list != None
 
     def execute(self, context):
-        the_list = getattr(context.scene, self.list_name)
-        index = getattr(context.scene, f"{self.list_name}_index")
+        list = context.scene.image_packer_packing_list
+        pref = context.preferences.addons[__package__].preferences
+        new_item = GetActiveImage()
 
-        the_list.remove(index)
-        setattr(context.scene, f"{self.list_name}_index", min(max(0, index - 1), len(the_list) - 1))
+        if new_item is None:
+            self.report({'INFO'}, "Open an image in the Image Editor to add to the Packing List")
+            return {"CANCELLED"}
+        
+        # If duplicates are allowed or the new item is not in the packing list 
+        if pref.allow_duplicates or new_item.name not in [item.name for item in list]:
+            item = list.add()
+            item.name = new_item.name
+            item.image = new_item
+            # Set the packing_list_index to the index of the last item in the list
+            context.scene.image_packer_packing_list_index = len(list) - 1
+
+        return {"FINISHED"}
+
+class RemoveFromPackingListOpr(Operator):
+    bl_label = "Remove from packing list"
+    bl_idname = "opr.remove_from_packing_list"
+    bl_description = "Removes the current active item from the packing list"
+
+    @classmethod
+    def poll(cls, context):
+        """Checks whether the packing list exists and has items"""
+        return context.scene.image_packer_packing_list != None and len(context.scene.image_packer_packing_list) > 0
+
+    def execute(self, context):
+        list = context.scene.image_packer_packing_list
+        index = context.scene.image_packer_packing_list_index
+
+        list.remove(index)
+        context.scene.image_packer_packing_list_index = min(max(0, index - 1), len(list))
 
         return {'FINISHED'}
 
+class ClearPackingListOpr(Operator):
+    bl_label = "Clear packing list"
+    bl_idname = "opr.clear_packing_list"
+    bl_description = "Removes all items from the packing list"
 
-class ClearListOpr(Operator):
-    bl_label = "Clear list"
-    bl_idname = "opr.clear_list"
-    bl_description = "Removes all items from a specified list"
-
-    list_name: StringProperty(default="image_packer_packing_list")
+    @classmethod
+    def poll(cls, context):
+        """Checks whether the packing list exists and has items, and returns a boolean"""
+        return context.scene.image_packer_packing_list != None and len(context.scene.image_packer_packing_list) > 0
 
     def execute(self, context):
-        the_list = getattr(context.scene, self.list_name)
-        the_list.clear()
-        setattr(context.scene, f"{self.list_name}_index", 0)
+        # Get the specified list from the current scene
+        list = context.scene.image_packer_packing_list
+
+        # Clear the list
+        list.clear()
+        self.report({'INFO'}, "Cleared Packing List")
+
+        # Set index of the list to 0
+        context.scene.image_packer_packing_list_index = 0
 
         return {'FINISHED'}
-
-
 
 class MoveItemOpr(Operator):
     bl_label = "Move an item in the packing list"
@@ -154,7 +165,7 @@ class MoveItemOpr(Operator):
     def move_index(self):
         """ Move index of an item render queue while clamping it. """
 
-        list_length = len(bpy.context.sceneimage_packer_packing_list) - 1  # (index starts at 0)
+        list_length = len(bpy.context.scene.image_packer_packing_list) - 1  # (index starts at 0)
         index = bpy.context.scene.image_packer_packing_list_index
         new_index = index + (-1 if self.direction == 'UP' else 1)
 
@@ -171,19 +182,90 @@ class MoveItemOpr(Operator):
 
         return {'FINISHED'}
 
+# Exclude List Operators
+class AddToExcludeListOpr(Operator):
+    bl_label = "Add to exclude list"
+    bl_idname = "opr.add_to_exclude_list"
+    bl_description = "Adds the current active item to the exclude list"
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene.image_packer_exclude_list != None
+
+    def execute(self, context):
+        list = context.scene.image_packer_exclude_list
+        pref = context.preferences.addons[__package__].preferences
+        new_item = GetActiveImage()
+
+        if new_item is None:
+            self.report({'INFO'}, "Open an image in the Image Editor to add to the Exclude List")
+            return {"CANCELLED"}
+        
+        # If the new item is not in the exclude list add to list
+        if new_item.name not in [item.name for item in list]:
+            item = list.add()
+            item.name = new_item.name
+            item.image = new_item
+            # Set the exclude_list_index to the index of the last item in the list
+            context.scene.image_packer_exclude_list_index = len(list) - 1
+
+        return {"FINISHED"}
+
+class RemoveFromExcludeListOpr(Operator):
+    bl_label = "Remove from exclude list"
+    bl_idname = "opr.remove_from_exclude_list"
+    bl_description = "Removes the current active item from the exclude list"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.image_packer_exclude_list != None and len(context.scene.image_packer_exclude_list) > 0
+
+    def execute(self, context):
+        list = context.scene.image_packer_exclude_list
+        index = context.scene.image_packer_exclude_list_index
+
+        list.remove(index)
+        context.scene.image_packer_exclude_list_index = min(max(0, index - 1), len(list))
+
+        return {'FINISHED'}  
+
+class ClearExcludeListOpr(Operator):
+    bl_label = "Clear exclude list"
+    bl_idname = "opr.clear_exclude_list"
+    bl_description = "Removes all items from the exclude list"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.image_packer_exclude_list != None and len(context.scene.image_packer_exclude_list) > 0
+
+    def execute(self, context):
+        # Get the specified list from the current scene
+        list = context.scene.image_packer_exclude_list
+
+        # Clear the list
+        list.clear()
+        self.report({'INFO'}, "Cleared Exclude List")
+
+        # Set index of the list to 0
+        context.scene.image_packer_exclude_list_index = 0
+
+        return {'FINISHED'}
+
+# Extra Options
 class RemoveOtherImgOpr(Operator):
     bl_label = "Remove unused images in blend file"
     bl_idname = "opr.image_packer_remove_other_imgs"
-    bl_description = "Removes all images in the blend file which are not in the packing list"
+    bl_description = "Removes all images in the blend file which are not in the packing list or the exclude list"
 
     def execute(self, context):
         scene = context.scene
 
         packing_list = scene.image_packer_packing_list
+        exclude_list = scene.image_packer_exclude_list
+
         name_list = []
-        for item in packing_list:
-            name_list.append(item.name)
+        name_list.extend([item.name for item in packing_list])
+        name_list.extend([item.name for item in exclude_list])
 
         all_images = bpy.data.images
         for image in all_images:
@@ -222,10 +304,13 @@ class MakeTestShapesOpr(Operator):
 classes = (
     GenerateOpr,
     PreviewOpr,
-    RemoveColOpr,
-    AddToListOpr,
-    RemoveFromListOpr,
-    ClearListOpr,
+    RemovePackedOpr,
+    AddToPackingListOpr,
+    RemoveFromPackingListOpr,
+    ClearPackingListOpr,
+    AddToExcludeListOpr,
+    RemoveFromExcludeListOpr,
+    ClearExcludeListOpr,
     MoveItemOpr,
     RemoveOtherImgOpr,
     MakeTestShapesOpr,
@@ -234,8 +319,6 @@ classes = (
 
 def register():
     for cls in classes:
-        if (cls == RemoveFromListOpr):
-            print("Registering operator:", cls.bl_idname, "list_name:", cls.list_name)  # add this line
         bpy.utils.register_class(cls)
 
 

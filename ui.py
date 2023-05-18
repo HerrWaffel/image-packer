@@ -46,44 +46,53 @@ class IMAGE_PT_image_packer(bpy.types.Panel):
 
         # Packing List
         box = layout.box()
-        row = box.row()
-        row.template_list("IMAGE_UL_PackingList", "Packing List", scene,
+        box.label(text="Packing List Options")
+        list_row = box.row()
+        col = list_row.column()
+        col.template_list("IMAGE_UL_PackingList", "Packing List", scene,
                           "image_packer_packing_list", scene, "image_packer_packing_list_index")
-
-        row = row.column(align=True)
-        row.operator("opr.image_packer_move_item", text="",
-                     icon="TRIA_UP").direction = "UP"
-        row.operator("opr.image_packer_move_item", text="",
-                     icon="TRIA_DOWN").direction = "DOWN"
-
-        # Packing List Options
-        row = box.row()
-        row.operator("opr.add_to_list", text="Add").list_name = "image_packer_packing_list"
-        row.operator("opr.remove_from_list", text="Remove").list_name = "image_packer_packing_list"
-        row.operator("opr.clear_list", text="Clear").list_name = "image_packer_packing_list"
+        
+        # Packing Item Options
         if scene.image_packer_packing_list_index >= 0 and scene.image_packer_packing_list:
             item = scene.image_packer_packing_list[scene.image_packer_packing_list_index]
-            row = box.row()
-            row.prop(item, "image")
+            col.prop(item, "image", text="")
+
+        # Packing List Operators
+        col.separator(factor=0.5)
+        row = col.row(align=True)
+        row.operator("opr.add_to_packing_list", text="Add")
+        row.operator("opr.remove_from_packing_list", text="Remove")
+        row.operator("opr.clear_packing_list", text="Clear")
+        
+        # Move List Operators
+        move_col = list_row.column(align=True)
+        move_col.operator("opr.image_packer_move_item", text="",
+                     icon="TRIA_UP").direction = "UP"
+        move_col.operator("opr.image_packer_move_item", text="",
+                     icon="TRIA_DOWN").direction = "DOWN"
+            
         layout.separator(factor=0.5)
 
         # Packing Options
         box = layout.box()
+        box.label(text="Packing Options")
         box.alignment = 'RIGHT'
         row = box.row(align=True)
-        row.prop(image_packer, "packing_mode")
+        row.prop(image_packer, "packing_mode", text="")
         switch_packing_mode(image_packer, box)
         if image_packer.packing_mode != "auto_sort": 
             col = box.column(align=True)
             row = col.row(align=True)
             row.prop(image_packer, "random_order")
             if image_packer.random_order:
-                row.prop(image_packer, "random_seed", icon_only=True)
+                row.prop(image_packer, "random_seed", icon_only=True)        
 
         # Generation Options
         row = box.row(align=True)
         row.prop(image_packer, "padding")
         row.prop(image_packer, "bg_color", icon_only=True)
+
+        layout.separator(factor=0.5)
 
         col = layout.column(align=True)
         row = col.row()
@@ -112,14 +121,16 @@ class IMAGE_PT_ExtraOptions(bpy.types.Panel):
         row.prop(image_packer, "preview_window")
 
         box = layout.box()
+        box.label(text="Exclude List")
         row = box.row()
-        row.template_list("IMAGE_UL_PackingList", "Exlude List", scene,
+        row.template_list("IMAGE_UL_PackingList", "Exclude List", scene,
                           "image_packer_exclude_list", scene, "image_packer_exclude_list_index")
         # Exclude List Options
-        row = box.row()
-        row.operator("opr.add_to_list", text="Add").list_name = "image_packer_exclude_list"
-        row.operator("opr.remove_from_list", text="Remove").list_name = "image_packer_exclude_list"
-        row.operator("opr.clear_list", text="Clear").list_name = "image_packer_exclude_list"
+        col = box.column(align=True)
+        row = col.row(align=True)
+        row.operator("opr.add_to_exclude_list", text="Add")
+        row.operator("opr.remove_from_exclude_list", text="Remove")
+        row.operator("opr.clear_exclude_list", text="Clear")
 
         row = layout.row()
         row.operator("opr.image_packer_remove_other_imgs",
