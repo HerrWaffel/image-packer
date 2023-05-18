@@ -117,9 +117,6 @@ class IMAGE_PT_ExtraOptions(bpy.types.Panel):
         image_packer = scene.image_packer
         layout = self.layout
 
-        row = layout.row()
-        row.prop(image_packer, "preview_window")
-
         box = layout.box()
         box.label(text="Exclude List")
         row = box.row()

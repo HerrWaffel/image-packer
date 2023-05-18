@@ -69,7 +69,6 @@ class PreviewOpr(Operator):
 
         preview_packed_image(bpy.data.images.get(image_packer.image_pack_name), pref.preview_window)
 
-        preview_packed_image(bpy.data.images.get(image_packer.image_pack_name), image_packer.preview_window)
         return {"FINISHED"}
 
 

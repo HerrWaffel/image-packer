@@ -106,12 +106,6 @@ class ImagePacker(bpy.types.PropertyGroup):
         description="Seed for random order"
     )
 
-    preview_window: BoolProperty(
-        name="New Preview Window",
-        default=False,
-        description="Preview the packed image in a new window"
-    )
-
     # Test Shapes
     start_color: FloatVectorProperty(
         name="Start Colour",
