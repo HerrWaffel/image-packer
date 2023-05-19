@@ -24,7 +24,9 @@ class ImagePacker(bpy.types.PropertyGroup):
         ('auto_sort', "Auto Sort", 
         "Keeps the size of the images but doesn't follow the order of the images list"),
         ('row_packing', "Row Packing", 
-        "Keeps the images in order of the images list and scales images to have the same width or height"),
+        "Keeps the images in order of the images list and scales images to have the same height"),
+        ('col_packing', "Column Packing", 
+        "Keeps the images in order of the images list and scales images to have the same width"),
         ('nextfit_packing', "Next Fit Packing",
         "Keeps the size of the images and follows the order of the images list, but may result in gaps between the rows"),
     ]
@@ -35,25 +37,16 @@ class ImagePacker(bpy.types.PropertyGroup):
         description="Change the algorithm for packing the images"
     )
 
-    side: EnumProperty(
-        name="Static Side",
-        items=[
-        ('width', "Width", "Width"),
-        ('height', "Height", "Height"),
-        ],
-        description="Scales images based on the selected side mode"
-    )
-
     side_mode: EnumProperty(
         name="Mode",
         items=[
-        ('min', "Minimal", ""),
-        ('max', "Maximal", ""),
-        ('avg', "Average", ""),
-        ('med', "Median", ""),
-        ('custom', "Custom", ""),
+            ('min', "Minimal", "Scale images based on the minimal size (width or height) of all the images"),
+            ('max', "Maximal", "Scale images based on the maximal size (width or height) of all the images"),
+            ('avg', "Average", "Scale images based on the average size (width or height) of all the images"),
+            ('med', "Median", "Scale images based on the median size (width or height) of all the images"),
+            ('custom', "Custom", "Scale images based on a custom width or height"),
         ],
-        description="Sets the length of the side and scales images based on aspect ratio"
+        description="Scales images based on the mode to the correct aspect ratio"
     )
 
     image_pack_name: StringProperty(

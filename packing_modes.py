@@ -142,16 +142,14 @@ def AutoSort(packing_list, image_packer):
     remove_imgs(temp_imgs)
 
 
-def RowPacking(packing_list, image_packer):
+def RowPacking(packing_list, image_packer, row_mode=True):
     mode = image_packer.side_mode
     padding = image_packer.padding
 
-    height_mode = "height" in image_packer.side
-    
     # fills total_side with height or width of packing_list
     total_side = []
     for img in packing_list:
-        total_side.append( img.size[ int(height_mode)])
+        total_side.append( img.size[ int(row_mode)])
 
     # set side length based on packing mode
     if "med" in mode:
@@ -169,7 +167,7 @@ def RowPacking(packing_list, image_packer):
     sizes = []
     temp_imgs = []
     for img in packing_list:
-        if height_mode:
+        if row_mode:
             w = ceil(img.size[0] * (side / img.size[1]))
             h = side
         else:
@@ -199,7 +197,7 @@ def RowPacking(packing_list, image_packer):
     imgs_pos = []
 
     # Iterate through the temp_imgs
-    if height_mode:
+    if row_mode:
         # Initialize the current position and the maximum width and height
         x = y = 0
         max_w = 0

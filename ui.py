@@ -7,12 +7,14 @@ def switch_packing_mode(image_packer, layout):
         row.prop(image_packer, "img_size")
     elif (image_packer.packing_mode == "auto_sort"):
         row = layout.row()
-    elif (image_packer.packing_mode == "row_packing"):
+    elif (image_packer.packing_mode == "row_packing" or image_packer.packing_mode == "col_packing"):
         pack_options = layout.column(align=True)
-        pack_options.prop(image_packer, "side")
         pack_options.prop(image_packer, "side_mode")
-        if (image_packer.side_mode == "custom"):
-            pack_options.prop(image_packer, "side_length")
+        if image_packer.side_mode == "custom":
+            if image_packer.packing_mode == "row_packing":
+                pack_options.prop(image_packer, "side_length", text="Height")
+            else:
+                pack_options.prop(image_packer, "side_length", text="Width")
 
 # == UI LISTS
 class IMAGE_UL_PackingList(bpy.types.UIList):

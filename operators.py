@@ -43,6 +43,8 @@ class GenerateOpr(Operator):
                 AutoSort(img_list, image_packer)
             case "row_packing":
                 RowPacking(img_list, image_packer)
+            case "col_packing":
+                RowPacking(img_list, image_packer, False)
             case "nextfit_packing":
                 NextFitPacking(img_list, image_packer)
         
