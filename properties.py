@@ -56,8 +56,9 @@ class ImagePacker(bpy.types.PropertyGroup):
 
     image_pack_name: StringProperty(
         name="Name",
-        default="New Packed Image"
-    )
+        default="New Packed Image",
+        description="The name of the packed image"
+        )
 
     bg_color: FloatVectorProperty(
         name="Background Colour",
@@ -72,7 +73,7 @@ class ImagePacker(bpy.types.PropertyGroup):
         name="Padding",
         default=0,
         min=0,
-        description="Adds padding to each image in the collection"
+        description="Add padding to each image in the packing list"
     )
 
     img_size: IntProperty(
