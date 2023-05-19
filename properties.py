@@ -9,6 +9,11 @@ from bpy.props import (
     FloatVectorProperty,
 )
 
+def packing_list_index_callback(self, context):
+    packing_list = context.scene.image_packer_packing_list
+    index = context.scene.image_packer_packing_list_index
+    bpy.context.area.spaces.active.image = packing_list[index].image
+
 
 class PackItem(bpy.types.PropertyGroup):
     """Group of properties representing an item in the list."""
@@ -169,6 +174,7 @@ def register():
     bpy.types.Scene.image_packer_packing_list = CollectionProperty(type=PackItem)
     bpy.types.Scene.image_packer_packing_list_index = IntProperty(name="Index for packing_list",
                                                  default=0,
+                                                 update=packing_list_index_callback)
 
 
 def unregister():

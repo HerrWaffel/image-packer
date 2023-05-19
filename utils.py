@@ -64,10 +64,8 @@ def preview_packed_image(packed_image, preview_window):
         area = bpy.context.window_manager.windows[-1].screen.areas[0]
         area.type = 'IMAGE_EDITOR'
 
-        # Assign the image
-        bpy.context.area.spaces.active.image = packed_image
-    else:
-        bpy.context.area.spaces.active.image = packed_image
+    # Assign the image
+    bpy.context.area.spaces.active.image = packed_image
 
 
 def shuffle_packing_list(img_list):
