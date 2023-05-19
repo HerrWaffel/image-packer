@@ -194,98 +194,19 @@ class MoveItemOpr(Operator):
 
         return {'FINISHED'}
 
-# Exclude List Operators
-class AddToExcludeListOpr(Operator):
-    bl_label = "Add to exclude list"
-    bl_idname = "opr.add_to_exclude_list"
-    bl_description = "Adds the current active item to the exclude list"
-
-    @classmethod
-    def poll(cls, context):
-        return context.scene.image_packer_exclude_list != None
-
-    def execute(self, context):
-        list = context.scene.image_packer_exclude_list
-        pref = context.preferences.addons[__package__].preferences
-        new_item = GetActiveImage()
-
-        if new_item is None:
-            self.report({'INFO'}, "Open an image in the Image Editor to add to the Exclude List")
-            return {"CANCELLED"}
-        
-        # If the new item is not in the exclude list add to list
-        if new_item.name not in [item.name for item in list]:
-            item = list.add()
-            item.name = new_item.name
-            item.image = new_item
-            # Set the exclude_list_index to the index of the last item in the list
-            context.scene.image_packer_exclude_list_index = len(list) - 1
-
-        return {"FINISHED"}
-
-class RemoveFromExcludeListOpr(Operator):
-    bl_label = "Remove from exclude list"
-    bl_idname = "opr.remove_from_exclude_list"
-    bl_description = "Removes the current active item from the exclude list"
-
-    @classmethod
-    def poll(cls, context):
-        return context.scene.image_packer_exclude_list != None and len(context.scene.image_packer_exclude_list) > 0
-
-    def execute(self, context):
-        list = context.scene.image_packer_exclude_list
-        index = context.scene.image_packer_exclude_list_index
-
-        list.remove(index)
-        context.scene.image_packer_exclude_list_index = min(max(0, index - 1), len(list))
-
-        return {'FINISHED'}  
-
-class ClearExcludeListOpr(Operator):
-    bl_label = "Clear exclude list"
-    bl_idname = "opr.clear_exclude_list"
-    bl_description = "Removes all items from the exclude list"
-
-    @classmethod
-    def poll(cls, context):
-        return context.scene.image_packer_exclude_list != None and len(context.scene.image_packer_exclude_list) > 0
-
-    def execute(self, context):
-        # Get the specified list from the current scene
-        list = context.scene.image_packer_exclude_list
-
-        # Clear the list
-        list.clear()
-        self.report({'INFO'}, "Cleared Exclude List")
-
-        # Set index of the list to 0
-        context.scene.image_packer_exclude_list_index = 0
-
-        return {'FINISHED'}
 
 # Extra Options
 class RemoveOtherImgOpr(Operator):
     bl_label = "Remove unused images in blend file"
     bl_idname = "opr.image_packer_remove_other_imgs"
-    bl_description = "Removes all images in the blend file which are not in the packing list or the exclude list"
+    bl_description = "Removes all unused images in the blend file, excluding the packed image"
 
     def execute(self, context):
-        scene = context.scene
-
-        packing_list = scene.image_packer_packing_list
-        exclude_list = scene.image_packer_exclude_list
-
-        name_list = []
-        name_list.extend([item.name for item in packing_list])
-        name_list.extend([item.name for item in exclude_list])
-
-        all_images = bpy.data.images
-        for image in all_images:
-            if not (image.name in name_list or image.name == scene.image_packer.image_pack_name):
-                all_images.remove(image)
+        for image in bpy.data.images:
+            if (image.users == 0 and image.name != context.scene.image_packer.name):
+                bpy.data.images.remove(image)
 
         return {"FINISHED"}
-
 
 class MakeTestShapesOpr(Operator):
     bl_label = "Generates test shapes"
@@ -320,9 +241,6 @@ classes = (
     AddToPackingListOpr,
     RemoveFromPackingListOpr,
     ClearPackingListOpr,
-    AddToExcludeListOpr,
-    RemoveFromExcludeListOpr,
-    ClearExcludeListOpr,
     MoveItemOpr,
     RemoveOtherImgOpr,
     MakeTestShapesOpr,

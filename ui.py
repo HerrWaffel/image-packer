@@ -16,7 +16,7 @@ def switch_packing_mode(image_packer, layout):
             else:
                 pack_options.prop(image_packer, "side_length", text="Width")
 
-# == UI LISTS
+# == IMAGE LISTS
 class IMAGE_UL_PackingList(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data,
                   active_propname, index):
@@ -29,27 +29,35 @@ class IMAGE_UL_PackingList(bpy.types.UIList):
             layout.alignment = 'CENTER'
             layout.label(text="", icon=custom_icon)
 
-# == PANELS
+
+# == MAIN PANEL
 class IMAGE_PT_image_packer(bpy.types.Panel):
-    bl_label = "Packed Image Options"
+    bl_label = "Image Packer"
     bl_category = "Image Packer"
     bl_idname = "IMAGE_EDITOR_PT_image_packer_main"
     bl_space_type = "IMAGE_EDITOR"
     bl_region_type = "UI"
 
     def draw(self, context):
+        return
+
+# == MAIN SUBPANELS
+class IMAGE_PT_PackingList(bpy.types.Panel):
+    bl_label = "Packing List"
+    bl_category = "Image Packer"
+    bl_idname = "IMAGE_EDITOR_PT_packing_list"
+    bl_parent_id = "IMAGE_EDITOR_PT_image_packer_main"
+    bl_space_type = "IMAGE_EDITOR"
+    bl_region_type = "UI"
+    bl_options = {'HIDE_HEADER'}
+
+    def draw(self, context):
         scene = context.scene
-        image_packer = scene.image_packer
         layout = self.layout
 
-        # Packed Image Options
-        row = layout.row()
-        row.prop(image_packer, "image_pack_name",icon_only=True)
-
         # Packing List
-        box = layout.box()
-        box.label(text="Packing List Options")
-        list_row = box.row()
+        layout.label(text="Packing List")
+        list_row = layout.row()
         col = list_row.column()
         col.template_list("IMAGE_UL_PackingList", "Packing List", scene,
                           "image_packer_packing_list", scene, "image_packer_packing_list_index")
@@ -71,30 +79,55 @@ class IMAGE_PT_image_packer(bpy.types.Panel):
         move_col.operator("opr.image_packer_move_item", text="",
                      icon="TRIA_UP").direction = "UP"
         move_col.operator("opr.image_packer_move_item", text="",
-                     icon="TRIA_DOWN").direction = "DOWN"
-            
-        layout.separator(factor=0.5)
+                     icon="TRIA_DOWN").direction = "DOWN"   
 
-        # Packing Options
-        box = layout.box()
-        box.label(text="Packing Options")
-        box.alignment = 'RIGHT'
-        row = box.row(align=True)
+class IMAGE_PT_PackingOptions(bpy.types.Panel):
+    bl_label = "Packing Options"
+    bl_category = "Image Packer"
+    bl_idname = "IMAGE_EDITOR_PT_packing_options"
+    bl_parent_id = "IMAGE_EDITOR_PT_image_packer_main"
+    bl_space_type = "IMAGE_EDITOR"
+    bl_region_type = "UI"
+
+    def draw(self, context):
+        scene = context.scene
+        image_packer = scene.image_packer
+        layout = self.layout
+
+        row = layout.row(align=True)
         row.prop(image_packer, "packing_mode", text="")
-        switch_packing_mode(image_packer, box)
+
+        switch_packing_mode(image_packer, layout)
+
         if image_packer.packing_mode != "auto_sort": 
-            col = box.column(align=True)
+            col = layout.column(align=True)
             row = col.row(align=True)
             row.prop(image_packer, "random_order")
             if image_packer.random_order:
-                row.prop(image_packer, "random_seed", icon_only=True)        
+                row.prop(image_packer, "random_seed", icon_only=True)  
 
         # Generation Options
-        row = box.row(align=True)
+        row = layout.row(align=True)
         row.prop(image_packer, "padding")
         row.prop(image_packer, "bg_color", icon_only=True)
 
-        layout.separator(factor=0.5)
+class IMAGE_PT_PackingOpr(bpy.types.Panel):
+    bl_label = "Packing Operators"
+    bl_category = "Image Packer"
+    bl_idname = "IMAGE_EDITOR_PT_packing_opr"
+    bl_parent_id = "IMAGE_EDITOR_PT_image_packer_main"
+    bl_space_type = "IMAGE_EDITOR"
+    bl_region_type = "UI"
+    bl_options = {'HIDE_HEADER'}
+
+    def draw(self, context):
+        layout = self.layout
+        # layout.use_property_decorate = False
+        image_packer = context.scene.image_packer
+
+        # Packed Image Name
+        row = layout.row()
+        row.prop(image_packer, "image_pack_name", icon_only=True)
 
         col = layout.column(align=True)
         row = col.row()
@@ -115,40 +148,33 @@ class IMAGE_PT_ExtraOptions(bpy.types.Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
+        self.layout.operator("opr.image_packer_remove_other_imgs",
+                     text="Delete Unused Images")
+
+# == EXTRA SUBPANELS       
+class IMAGE_PT_TestShapes(bpy.types.Panel):
+    bl_label = "Test Shapes"
+    bl_category = "Extra Options"
+    bl_idname = "IMAGE_EDITOR_PT_test_shapes"
+    bl_parent_id = "IMAGE_EDITOR_PT_image_packer_extra"
+    bl_space_type = "IMAGE_EDITOR"
+    bl_region_type = "UI"
+
+    def draw(self, context):
         scene = context.scene
         image_packer = scene.image_packer
         layout = self.layout
 
-        box = layout.box()
-        box.label(text="Exclude List")
-        row = box.row()
-        row.template_list("IMAGE_UL_PackingList", "Exclude List", scene,
-                          "image_packer_exclude_list", scene, "image_packer_exclude_list_index")
-        # Exclude List Options
-        col = box.column(align=True)
-        row = col.row(align=True)
-        row.operator("opr.add_to_exclude_list", text="Add")
-        row.operator("opr.remove_from_exclude_list", text="Remove")
-        row.operator("opr.clear_exclude_list", text="Clear")
-
         row = layout.row()
-        row.operator("opr.image_packer_remove_other_imgs",
-                     text="Delete Other Images")
-        row.separator(factor=1.5)
-
-        # Test Shapes Options
-        box = layout.box()
-        box.label(text="Test Shapes Options")
-        row = box.row()
         row.prop(image_packer, "amount", text="Shape Amount")
-        row = box.row()
+        row = layout.row()
         row.prop(image_packer, "test_seed", text="Random Seed")
 
-        row = box.row()
+        row = layout.row(align=True)
         row.prop(image_packer, "start_color", text="")
         row.prop(image_packer, "end_color", text="")
 
-        col = box.column(align=True)
+        col = layout.column(align=True)
         row = col.row(align=True)
         row.separator()
         r = row.split(factor=0.2, align=True)
@@ -169,14 +195,18 @@ class IMAGE_PT_ExtraOptions(bpy.types.Panel):
         r.prop(image_packer, "min_height", icon_only=True)
         r.prop(image_packer, "max_height", icon_only=True)
 
-        row = box.row()
+        row = layout.row()
         row.operator("opr.image_packer_make_testshapes", text="Make Shapes")
 
 
 classes = [
     IMAGE_UL_PackingList,
     IMAGE_PT_image_packer,
+    IMAGE_PT_PackingList,
+    IMAGE_PT_PackingOptions,
     IMAGE_PT_ExtraOptions,
+    IMAGE_PT_TestShapes,
+    IMAGE_PT_PackingOpr,
 ]
 
 
