@@ -2,10 +2,10 @@ import bpy
 from bpy.types import Operator
 from bpy.props import StringProperty
 from .utils import (
-    GetActiveImage, 
+    get_active_img, 
     shuffle_packing_list, 
     preview_packed_image, 
-    CreateTestImgs,
+    create_test_imgs,
 )
 from .packing_modes import (
     SquarePacking,
@@ -47,7 +47,7 @@ class GenerateOpr(Operator):
                 NextFitPacking(img_list, image_packer)
         
         
-        if(pref.auto_open_preview or GetActiveImage() == None):
+        if(pref.auto_open_preview or get_active_img() == None):
             packed_img = bpy.data.images.get(image_packer.image_pack_name)
             bpy.context.area.spaces.active.image = packed_img
         return {"FINISHED"}
@@ -100,7 +100,7 @@ class AddToPackingListOpr(Operator):
     def execute(self, context):
         list = context.scene.image_packer_packing_list
         pref = context.preferences.addons[__package__].preferences
-        new_item = GetActiveImage()
+        new_item = get_active_img()
 
         if new_item is None:
             self.report({'INFO'}, "Open an image in the Image Editor to add to the Packing List")
@@ -297,7 +297,7 @@ class MakeTestShapesOpr(Operator):
         min_size = [image_packer.min_width, image_packer.min_height]
         max_size = [image_packer.max_width, image_packer.max_height]
 
-        img_list = CreateTestImgs(image_packer.amount, min_size, max_size)
+        img_list = create_test_imgs(image_packer.amount, min_size, max_size)
 
         name_list = []
         for item in packing_list:

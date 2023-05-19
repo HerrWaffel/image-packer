@@ -49,7 +49,7 @@ def median_of_list(n_list):
     return (n_list[mid] + n_list[~mid]) / 2
 
 
-def GetActiveImage():
+def get_active_img():
     for area in bpy.context.screen.areas:
         if area.type == 'IMAGE_EDITOR':
             return area.spaces.active.image
@@ -75,7 +75,7 @@ def shuffle_packing_list(img_list):
     return random.shuffle(img_list)
 
 
-def CreateTestImgs(amount, min_size, max_size):
+def create_test_imgs(amount, min_size, max_size):
     img_list = []
     random.seed(bpy.context.scene.image_packer.test_seed)
     color_1 = bpy.context.scene.image_packer.end_color
