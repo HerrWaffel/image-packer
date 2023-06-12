@@ -30,15 +30,22 @@ To use this addon, do the following:
 This addon has the following configuration options:
 
 - Packing algorithm: Choose from several different algorithms for packing the images together, including:
-![Screenshot](screenshots/SquarePacking.jpg)
+
   - Square packing: This algorithm scales each image to have the same width and height, and the combined image is also a square.
-![Screenshot](screenshots/AutoSort.jpg)
+![Screenshot](screenshots/SquarePacking.jpg=400x)
+
   - Auto sort: This algorithm uses a divide and conquer algorithm (implemented with the Python dependency `rpack`) to find the optimal packing solution.
-![Screenshot](screenshots/RowPacking.jpg)
-  - Row packing: This algorithm keeps the images in the order of the collection list and scales the images to have the same width or height.
-![Screenshot](screenshots/ColumnPacking.jpg)
+![Screenshot](screenshots/AutoSort.jpg=400x)
+
+  - Row packing: This algorithm keeps the images in the order of the collection list and scales the images to have the same height.
+![Screenshot](screenshots/RowPacking.jpg=400x)
+
+  - Column packing: This algorithm keeps the images in the order of the collection list and scales the images to have the same width.
+![Screenshot](screenshots/ColumnPacking.jpg=400x)
+
   - Next fit packing: This algorithm keeps the size of the images and follows the order of the collection list, but may result in gaps between the rows.
-![Screenshot](screenshots/NextFit.jpg)
+![Screenshot](screenshots/NextFit.jpg=400x)
+
 - Padding: Adjust the amount of padding to add around each image.
 
 ## Troubleshooting
