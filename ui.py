@@ -150,6 +150,8 @@ class IMAGE_PT_ExtraOptions(bpy.types.Panel):
     def draw(self, context):
         self.layout.operator("opr.image_packer_remove_other_imgs",
                      text="Delete Unused Images")
+        self.layout.operator("opr.image_packer_add_all_imgs",
+                             text="Add All Images")
 
 # == EXTRA SUBPANELS       
 class IMAGE_PT_TestShapes(bpy.types.Panel):

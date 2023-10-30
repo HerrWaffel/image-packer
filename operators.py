@@ -208,6 +208,33 @@ class RemoveOtherImgOpr(Operator):
 
         return {"FINISHED"}
 
+class AddAllImgOpr(Operator):
+    bl_label = "Adds all images to packing list"
+    bl_idname = "opr.image_packer_add_all_imgs"
+    bl_description = "Add all images in the blend file to the packing list, excluding the packed image"
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.image_packer_packing_list != None
+
+    def execute(self, context):
+        list = context.scene.image_packer_packing_list
+        pref = context.preferences.addons[__package__].preferences
+
+        for image in bpy.data.images:
+            new_item = image
+            not_packing_img = new_item.name != context.scene.image_packer.name
+
+            # If duplicates are allowed or the new item is not in the packing list 
+            if  not_packing_img and (pref.allow_duplicates or new_item.name not in [item.name for item in list]):
+                item = list.add()
+                item.name = new_item.name
+                item.image = new_item
+                # Set the packing_list_index to the index of the last item in the list
+                context.scene.image_packer_packing_list_index = len(list) - 1
+            
+        return {"FINISHED"}
+
 class MakeTestShapesOpr(Operator):
     bl_label = "Generates test shapes"
     bl_idname = "opr.image_packer_make_testshapes"
@@ -243,6 +270,7 @@ classes = (
     ClearPackingListOpr,
     MoveItemOpr,
     RemoveOtherImgOpr,
+    AddAllImgOpr,
     MakeTestShapesOpr,
 )
 
