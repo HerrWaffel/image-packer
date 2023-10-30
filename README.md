@@ -18,15 +18,16 @@ To use this addon, do the following:
 1. Open a new Blender file.
 2. Go to the Image Editor area.
 3. Open the Image Packer panel and set the collection name and background colour.
-4. In the Image Packer panel, select the images you want to combine.
+4. In the Image Packer panel, select the images you want to add to the packing list.
 5. Choose a packing algorithm from the dropdown menu.
-6. Optionally, adjust the padding value as needed.
-7. Click the "Make Collection" button to generate the combined image.
+6. Optionally, dail in additional options as needed.
+7. Click the "Pack Images" button to generate the combined image.
 
 ## Configuration
 
 This addon has the following configuration options:
 
+- Packing algorithm: Choose from several different algorithms for packing images together, including:
 - Packing algorithm: Choose from several different algorithms for packing images together, including:
 
   - Square packing: This algorithm scales each image to have the same width and height, and the combined image is also a square.
@@ -53,6 +54,7 @@ This addon has the following configuration options:
     ![Screenshot](screenshots/NextFit.jpg)
 
 - Padding: Adjust the amount of padding to add around each image.
+![Screenshot](screenshots/Padding.jpg)
 
 ## Troubleshooting
 
