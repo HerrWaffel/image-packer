@@ -25,15 +25,15 @@ class PackItem(bpy.types.PropertyGroup):
 class ImagePacker(bpy.types.PropertyGroup):
     packing_modes = [
         ('square_packing', "Square Packing", 
-        "Keeps the images in order of the images list, scales all images to the same size and makes a 1:1 packed image"),
+        "Scales all images to the same size and makes a 1:1 packed image, keeps the images in order"),
         ('auto_sort', "Auto Sort", 
-        "Keeps the size of the images but doesn't follow the order of the images list"),
+        "Keeps the size of the images but doesn't follow the order"),
         ('row_packing', "Row Packing", 
-        "Keeps the images in order of the images list and scales images to have the same height"),
+        "Scales images to have the same height, keeps the images in order"),
         ('col_packing', "Column Packing", 
-        "Keeps the images in order of the images list and scales images to have the same width"),
+        "Scales images to have the same width, keeps the images in order"),
         ('nextfit_packing', "Next Fit Packing",
-        "Keeps the size of the images and follows the order of the images list, but may result in gaps between the rows"),
+        "Keeps the size and order of the images, but may result in gaps between the rows"),
     ]
 
     packing_mode: EnumProperty(
