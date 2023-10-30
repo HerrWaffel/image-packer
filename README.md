@@ -2,8 +2,6 @@
 
 This Blender addon allows you to combine multiple images into a single image using different packing algorithms. You can also add padding to each image as needed. The Image Packer panel is only visible in the Image Editor area.
 
-![Screenshot](screenshot.png)
-
 ## Installation
 
 To install this addon, do the following:
@@ -29,22 +27,30 @@ To use this addon, do the following:
 
 This addon has the following configuration options:
 
-- Packing algorithm: Choose from several different algorithms for packing the images together, including:
+- Packing algorithm: Choose from several different algorithms for packing images together, including:
 
   - Square packing: This algorithm scales each image to have the same width and height, and the combined image is also a square.
-![Screenshot](screenshots/SquarePacking.jpg)
+  
+    ![Screenshot](screenshots/SquarePacking.jpg)
 
   - Auto sort: This algorithm uses a divide and conquer algorithm (implemented with the Python dependency `rpack`) to find the optimal packing solution.
-![Screenshot](screenshots/AutoSort.jpg)
+  
+    ![Screenshot](screenshots/AutoSort.jpg)
 
-  - Row packing: This algorithm keeps the images in the order of the collection list and scales the images to have the same height.
-![Screenshot](screenshots/RowPacking.jpg)
 
-  - Column packing: This algorithm keeps the images in the order of the collection list and scales the images to have the same width.
-![Screenshot](screenshots/ColumnPacking.jpg)
+  - Row packing: This algorithm keeps the images in the order of the packing list and scales the images to have the same height.
+  
+    ![Screenshot](screenshots/RowPacking.jpg)
 
-  - Next fit packing: This algorithm keeps the size of the images and follows the order of the collection list, but may result in gaps between the rows.
-![Screenshot](screenshots/NextFit.jpg)
+
+  - Column packing: This algorithm keeps the images in the order of the packing list and scales the images to have the same width.
+  
+    ![Screenshot](screenshots/ColumnPacking.jpg)
+
+
+  - Next fit packing: This algorithm keeps the size of the images and follows the order of the packing list, but may result in gaps between the rows.
+  
+    ![Screenshot](screenshots/NextFit.jpg)
 
 - Padding: Adjust the amount of padding to add around each image.
 
