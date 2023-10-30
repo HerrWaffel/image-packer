@@ -28,7 +28,6 @@ To use this addon, do the following:
 This addon has the following configuration options:
 
 - Packing algorithm: Choose from several different algorithms for packing images together, including:
-- Packing algorithm: Choose from several different algorithms for packing images together, including:
 
   - Square packing: This algorithm scales each image to have the same width and height, and the combined image is also a square.
   
