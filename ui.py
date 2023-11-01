@@ -5,8 +5,6 @@ def switch_packing_mode(image_packer, layout):
     if (image_packer.packing_mode == "square_packing"):
         row = layout.row()
         row.prop(image_packer, "img_size")
-    elif (image_packer.packing_mode == "auto_sort"):
-        row = layout.row()
     elif (image_packer.packing_mode == "row_packing" or image_packer.packing_mode == "col_packing"):
         pack_options = layout.column(align=True)
         pack_options.prop(image_packer, "side_mode")
@@ -99,12 +97,11 @@ class IMAGE_PT_PackingOptions(bpy.types.Panel):
 
         switch_packing_mode(image_packer, layout)
 
-        if image_packer.packing_mode != "auto_sort": 
-            col = layout.column(align=True)
-            row = col.row(align=True)
-            row.prop(image_packer, "random_order")
-            if image_packer.random_order:
-                row.prop(image_packer, "random_seed", icon_only=True)  
+        col = layout.column(align=True)
+        row = col.row(align=True)
+        row.prop(image_packer, "random_order")
+        if image_packer.random_order:
+            row.prop(image_packer, "random_seed", icon_only=True)  
 
         # Generation Options
         row = layout.row(align=True)

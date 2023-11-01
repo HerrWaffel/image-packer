@@ -9,7 +9,6 @@ from .utils import (
 )
 from .packing_modes import (
     SquarePacking,
-    AutoSort,
     RowPacking,
     NextFitPacking,
 )
@@ -39,8 +38,6 @@ class GenerateOpr(Operator):
         match image_packer.packing_mode:
             case "square_packing":
                 SquarePacking(img_list, image_packer)
-            case "auto_sort":
-                AutoSort(img_list, image_packer)
             case "row_packing":
                 RowPacking(img_list, image_packer)
             case "col_packing":

@@ -8,20 +8,10 @@ bl_info = {
     "category": "Paint"
 }
 
-import importlib
 from . import operators, properties, ui, preferences
-from .dependencies import rpack
 
-
-modules = [
-	rpack,
-]
 
 def register():
-	# reload the submodules
-	for module in modules:
-		importlib.reload(module)
-
 	preferences.register()
 	properties.register()
 	operators.register()

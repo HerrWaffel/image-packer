@@ -4,7 +4,6 @@ import numpy as np
 import mathutils
 
 from operator import abs
-from .dependencies import rpack
 
 
 def lerp(x, y, a):

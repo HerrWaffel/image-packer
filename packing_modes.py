@@ -3,7 +3,6 @@ import numpy as np
 
 from math import ceil, floor, sqrt
 from operator import mod
-from .dependencies import rpack
 from .utils import median_of_list
 from mathutils import Color
 
@@ -110,35 +109,6 @@ def SquarePacking(packing_list, image_packer):
     imgs_pos = get_square_imgs_pos(temp_imgs, squares)
     col_img, col_pixels = make_packed_image(image_packer.image_pack_name, (max_w, max_w))
     update_col_pixels(col_img, col_pixels, temp_imgs, imgs_pos)
-    remove_imgs(temp_imgs)
-
-
-def AutoSort(packing_list, image_packer):
-    sizes = []
-    temp_imgs = []
-    for img in packing_list:
-        temp_img = bpy.data.images.new(
-            img.name + "_temp", width=img.size[0], height=img.size[1])
-        temp_img.pixels[:] = img.pixels
-        add_padding_img(temp_img, image_packer.padding)
-        temp_imgs.append(temp_img)
-
-        w, h = temp_img.size
-        sizes.append((w, h))
-        
-    # amount of area needed to place all pixel data + 50% empty space
-    median_ratio = med_ratio_from_size(sizes) 
-    total_area = sum(areas_from_size(sizes))
-    area = ceil(total_area * 1.5)  
-
-    max_height = ceil(sqrt(area / median_ratio))
-    max_width = ceil(area / max_height)
-
-    imgs_pos = rpack.pack(sizes, max_width, max_height)
-    size = rpack.bbox_size(sizes, imgs_pos)
-
-    packed_image, packed_pixels = make_packed_image(image_packer.image_pack_name, size)
-    update_col_pixels(packed_image, packed_pixels, temp_imgs, imgs_pos)
     remove_imgs(temp_imgs)
 
 

@@ -26,8 +26,6 @@ class ImagePacker(bpy.types.PropertyGroup):
     packing_modes = [
         ('square_packing', "Square Packing", 
         "Scales all images to the same size and makes a 1:1 packed image, keeps the images in order"),
-        ('auto_sort', "Auto Sort", 
-        "Keeps the size of the images but doesn't follow the order"),
         ('row_packing', "Row Packing", 
         "Scales images to have the same height, keeps the images in order"),
         ('col_packing', "Column Packing", 
