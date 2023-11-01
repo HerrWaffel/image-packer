@@ -33,11 +33,6 @@ This addon has the following configuration options:
   
     ![Screenshot](screenshots/SquarePacking.jpg)
 
-  - Auto sort: This algorithm uses a divide and conquer algorithm (implemented with the Python dependency `rpack`) to find the optimal packing solution.
-  
-    ![Screenshot](screenshots/AutoSort.jpg)
-
-
   - Row packing: This algorithm keeps the images in the order of the packing list and scales the images to have the same height.
   
     ![Screenshot](screenshots/RowPacking.jpg)
