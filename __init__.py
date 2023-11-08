@@ -2,7 +2,7 @@ bl_info = {
     "name": "Image Packer",
     "description": "Combine multiple images into a single image using different packing algorithms",
     "author": "Quint Vrolijk",
-    "version": (1, 0, 0),
+    "version": (1, 0, 1),
     "blender": (3, 0, 0),
     "location": "Image Editor",
     "category": "Paint"
