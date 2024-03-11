@@ -183,5 +183,3 @@ def unregister():
     del bpy.types.Scene.image_packer
     del bpy.types.Scene.image_packer_packing_list
     del bpy.types.Scene.image_packer_packing_list_index
-    del bpy.types.Scene.image_packer_exclude_list
-    del bpy.types.Scene.image_packer_exclude_list_index
