@@ -75,6 +75,22 @@ def add_padding_img(img, padding):
     img.update()
     return
 
+def fill_padding_img(img, padding):
+    w, h = img.size
+    img_pixels = np.ones((h, w, 4), 'f')
+    img.pixels.foreach_get(img_pixels.ravel())
+    padding_pixels = np.ones((h + padding[1], w + padding[0], 4), 'f')
+    padding_pixels[:, :, :] = get_srgba_bg_color()
+
+    # center the image in the padding
+    w_offset = floor(padding[0] / 2)
+    h_offset = floor(padding[1] / 2)
+    padding_pixels[h_offset: h_offset + h, w_offset: w_offset + w] = img_pixels
+
+    img.scale(w + padding[0], h + padding[1])
+    img.pixels.foreach_set(padding_pixels.ravel())
+    img.update()
+    return
 
 def med_ratio_from_size(sizes):
     ratios = []
@@ -89,20 +105,50 @@ def areas_from_size(sizes):
         areas.append(size[0] * size[1])
     return areas
 
+def img_side_length(imgs, image_packer):
+    mode = image_packer.side_mode
+    row_mode = image_packer.side_switch == "width"
+
+    total_side = []
+    for img in imgs:
+        total_side.append( img.size[ int(row_mode)])
+    
+    # set side length based on side mode
+    if "med" in mode:
+        side = ceil( median_of_list(total_side))
+    elif "avg" in mode:
+        side = ceil( sum(total_side) / len(total_side))
+    elif "min" in mode:
+        side = min(total_side)
+    elif "max" in mode:
+        side = max(total_side)
+    else:
+        side = image_packer.side_length
+
+    return side
 
 def SquarePacking(packing_list, image_packer):
-    img_size = image_packer.img_size
     padding = image_packer.padding
-
+    side = img_side_length(packing_list, image_packer)
     squares = ceil( sqrt( len(packing_list)))
-    max_w = (img_size + 2*padding) * squares
+    max_w = (side + 2*padding) * squares
 
     temp_imgs = []
     for img in packing_list:
         temp_img = bpy.data.images.new(
             img.name + "_temp", width=img.size[0], height=img.size[1])
         temp_img.pixels[:] = img.pixels
-        temp_img.scale(img_size, img_size)
+
+        if image_packer.keep_aspect_ratio:
+            w, h = temp_img.size
+            scale_factor = min(side / w, side / h)
+            new_size = [floor(w * scale_factor), floor(h * scale_factor)]
+            fill_padding = [side - new_size[0], side - new_size[1]]
+            temp_img.scale(new_size[0], new_size[1])
+            fill_padding_img(temp_img, fill_padding)
+        else:
+            temp_img.scale(side, side)
+
         add_padding_img(temp_img, padding)
         temp_imgs.append(temp_img)
 
@@ -116,22 +162,7 @@ def RowPacking(packing_list, image_packer, row_mode=True):
     mode = image_packer.side_mode
     padding = image_packer.padding
 
-    # fills total_side with height or width of packing_list
-    total_side = []
-    for img in packing_list:
-        total_side.append( img.size[ int(row_mode)])
-
-    # set side length based on packing mode
-    if "med" in mode:
-        side = ceil( median_of_list(total_side))
-    elif "avg" in mode:
-        side = ceil( sum(total_side) / len(total_side))
-    elif "min" in mode:
-        side = min(total_side)
-    elif "max" in mode:
-        side = max(total_side)
-    else:
-        side = image_packer.side_length
+    side = img_side_length(packing_list, image_packer)
 
     # make temp imgs based on side and img aspect ratio
     sizes = []

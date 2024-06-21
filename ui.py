@@ -4,12 +4,18 @@ import bpy
 def switch_packing_mode(image_packer, layout):
     if (image_packer.packing_mode == "square_packing"):
         row = layout.row()
-        row.prop(image_packer, "img_size")
-    elif (image_packer.packing_mode == "row_packing" or image_packer.packing_mode == "col_packing"):
+        row.prop(image_packer, "keep_aspect_ratio")
+        if not image_packer.side_mode == "custom":
+            row = layout.row()
+            row.prop(image_packer, "side_switch")
+        
+    if (image_packer.packing_mode != "nextfit_packing"):
         pack_options = layout.column(align=True)
         pack_options.prop(image_packer, "side_mode")
         if image_packer.side_mode == "custom":
-            if image_packer.packing_mode == "row_packing":
+            if image_packer.packing_mode == "square_packing":
+                pack_options.prop(image_packer, "side_length", text="Side Length")
+            elif image_packer.packing_mode == "row_packing":
                 pack_options.prop(image_packer, "side_length", text="Height")
             else:
                 pack_options.prop(image_packer, "side_length", text="Width")

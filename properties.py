@@ -52,11 +52,26 @@ class ImagePacker(bpy.types.PropertyGroup):
         description="Scales images based on the mode to the correct aspect ratio"
     )
 
+    side_switch: EnumProperty(
+        name="Side",
+        items=[
+            ('width', "Width", "Scale images based on the width"),
+            ('height', "Height", "Scale images based on the height"),
+        ],
+        description="Switch between width and height"
+    )
+
+    keep_aspect_ratio: BoolProperty(
+        name="Keep Aspect Ratio",
+        default=True,
+        description="Keep the aspect ratio of the images"
+    )
+
     image_pack_name: StringProperty(
         name="Name",
         default="New Packed Image",
         description="The name of the packed image"
-        )
+    )
 
     bg_color: FloatVectorProperty(
         name="Background Colour",
