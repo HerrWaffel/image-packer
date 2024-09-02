@@ -75,6 +75,7 @@ def add_padding_img(img, padding):
     img.update()
     return
 
+
 def fill_padding_img(img, padding):
     w, h = img.size
     img_pixels = np.ones((h, w, 4), 'f')
@@ -92,6 +93,7 @@ def fill_padding_img(img, padding):
     img.update()
     return
 
+
 def med_ratio_from_size(sizes):
     ratios = []
     for size in sizes:
@@ -104,6 +106,7 @@ def areas_from_size(sizes):
     for size in sizes:
         areas.append(size[0] * size[1])
     return areas
+
 
 def img_side_length(imgs, image_packer):
     mode = image_packer.side_mode
@@ -127,8 +130,10 @@ def img_side_length(imgs, image_packer):
 
     return side
 
+
 def SquarePacking(packing_list, image_packer):
     padding = image_packer.padding
+
     side = img_side_length(packing_list, image_packer)
     squares = ceil( sqrt( len(packing_list)))
     max_w = (side + 2*padding) * squares
@@ -159,7 +164,6 @@ def SquarePacking(packing_list, image_packer):
 
 
 def RowPacking(packing_list, image_packer, row_mode=True):
-    mode = image_packer.side_mode
     padding = image_packer.padding
 
     side = img_side_length(packing_list, image_packer)
@@ -269,6 +273,7 @@ def pack_rectangles(imgs, max_width, max_height):
     # At this point, the imgs_pos list contains the lower left corners of the packed rectangles
     # and max_w and max_h contain the maximum width and height of the packed rectangles
     return imgs_pos, max_w, max_h
+
 
 def NextFitPacking(packing_list, image_packer):
     sizes = []

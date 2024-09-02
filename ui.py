@@ -5,6 +5,7 @@ def switch_packing_mode(image_packer, layout):
     if (image_packer.packing_mode == "square_packing"):
         row = layout.row()
         row.prop(image_packer, "keep_aspect_ratio")
+        
         if not image_packer.side_mode == "custom":
             row = layout.row()
             row.prop(image_packer, "side_switch")
@@ -12,6 +13,7 @@ def switch_packing_mode(image_packer, layout):
     if (image_packer.packing_mode != "nextfit_packing"):
         pack_options = layout.column(align=True)
         pack_options.prop(image_packer, "side_mode")
+
         if image_packer.side_mode == "custom":
             if image_packer.packing_mode == "square_packing":
                 pack_options.prop(image_packer, "side_length", text="Side Length")
