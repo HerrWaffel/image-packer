@@ -90,7 +90,7 @@ class RemovePackedOpr(Operator):
 class AddToPackingListOpr(Operator):
     bl_label = "Add to packing list"
     bl_idname = "opr.add_to_packing_list"
-    bl_description = "Adds the current active item to the packing list"
+    bl_description = "Adds the current active image to the packing list"
 
     @classmethod
     def poll(cls, context):
@@ -118,7 +118,7 @@ class AddToPackingListOpr(Operator):
 class RemoveFromPackingListOpr(Operator):
     bl_label = "Remove from packing list"
     bl_idname = "opr.remove_from_packing_list"
-    bl_description = "Removes the current active item from the packing list"
+    bl_description = "Removes the current active image from the packing list"
 
     @classmethod
     def poll(cls, context):
@@ -137,7 +137,7 @@ class RemoveFromPackingListOpr(Operator):
 class ClearPackingListOpr(Operator):
     bl_label = "Clear packing list"
     bl_idname = "opr.clear_packing_list"
-    bl_description = "Removes all items from the packing list"
+    bl_description = "Removes all images from the packing list"
 
     @classmethod
     def poll(cls, context):
@@ -160,7 +160,7 @@ class ClearPackingListOpr(Operator):
 class MoveItemOpr(Operator):
     bl_label = "Move an item in the packing list"
     bl_idname = "opr.image_packer_move_item"
-    bl_description = "Changes the order of the selected item in the packing list"
+    bl_description = "Changes the order of the selected image in the packing list"
 
     direction: bpy.props.EnumProperty(
         items=(('UP', 'Up', ""),
