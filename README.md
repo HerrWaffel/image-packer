@@ -2,6 +2,57 @@
 
 This Blender addon allows you to combine multiple images into a single image using different packing algorithms. You can also add padding to each image as needed. The Image Packer panel is only visible in the Image Editor area.
 
+
+  <img src="screenshots/Featured.png" width="600px">
+
+
+## Packing Algorithms
+
+This addon has the following packing methods:
+
+### Square Packing: 
+
+- Preserve the aspect ratio of original images or stretch them.
+- Scale image based on width or height (preserve aspect ratio).
+- Image size based on average/median/minimal/maximum side length or custom.
+- The final image has an aspect ratio of 1x1.
+    
+  <img src="screenshots/Square-Packing.jpg" width="600px">
+
+### Row Packing:
+
+- Scales all images to the same height.
+- Image height based on average/median/minimal/maximum height or custom.
+- The final image aspect ratio is the median ratio of all images.
+  
+  <img src="screenshots/Row Packing.jpg" width="600px">
+
+### Column Packing
+- Scales all images to the same width.
+- Image width based on average/median/minimal/maximum width or custom.
+- The final image aspect ratio is the median ratio of all images.
+
+  <img src="screenshots/Column Packing.jpg" width="600px">
+
+
+### Next Fit Packing
+- Keeps the size of the images but may result in gaps between the rows.
+- The final image aspect ratio is the median ratio of all images
+  
+  <img src="screenshots/Next Fit Packing.jpg" width="600px">
+
+## Extra Options
+Beside the packing options you can also change:
+- Randomize the order of the images.
+- Add padding around the image.
+
+  <img src="screenshots/Padding.jpg" width="300px">
+
+- Change background colour.
+- Delete unused images in the blend file.
+- Add all images in the blend file to the packing list.
+
+
 ## Installation
 
 To install this addon, do the following:
@@ -10,6 +61,7 @@ To install this addon, do the following:
 2. In Blender, go to Edit > Preferences > Add-ons.
 3. Click the "Install" button, and select the downloaded .zip file.
 4. Enable the addon by checking the checkbox next to its name.
+
 
 ## Usage
 
@@ -23,32 +75,6 @@ To use this addon, do the following:
 6. Optionally, dail in additional options as needed.
 7. Click the "Pack Images" button to generate the combined image.
 
-## Configuration
-
-This addon has the following configuration options:
-
-- Packing algorithm: Choose from several different algorithms for packing images together, including:
-
-  - Square packing: This algorithm scales each image to have the same width and height, and the combined image is also a square.
-  
-    ![Screenshot](screenshots/SquarePacking.jpg)
-
-  - Row packing: This algorithm keeps the images in the order of the packing list and scales the images to have the same height.
-  
-    ![Screenshot](screenshots/RowPacking.jpg)
-
-
-  - Column packing: This algorithm keeps the images in the order of the packing list and scales the images to have the same width.
-  
-    ![Screenshot](screenshots/ColumnPacking.jpg)
-
-
-  - Next fit packing: This algorithm keeps the size of the images and follows the order of the packing list, but may result in gaps between the rows.
-  
-    ![Screenshot](screenshots/NextFit.jpg)
-
-- Padding: Adjust the amount of padding to add around each image.
-![Screenshot](screenshots/Padding.jpg)
 
 ## Troubleshooting
 
@@ -58,15 +84,6 @@ If you experience any issues with this addon, try the following:
 2. Check the Blender console (Window > Toggle System Console) for any error messages.
 3. If you still can't resolve the issue, open an issue on the [GitHub repository](https://github.com/HerrWaffel/image-packer/issues).
 
-## Contributing
-
-If you would like to contribute to this addon, please follow these guidelines:
-
-1. Fork the repository.
-2. Create a new branch for your changes.
-3. Make your changes, and commit them with a descriptive commit message.
-4. Push your changes to your fork.
-5. Create a pull request from your fork to the main repository.
 
 ## License
 
