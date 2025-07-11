@@ -134,6 +134,14 @@ class IMAGE_PT_PackingOpr(bpy.types.Panel):
         row = layout.row()
         row.prop(image_packer, "image_pack_name", icon_only=True)
 
+        if image_packer.packing_mode != "square_packing":
+            row = layout.row(align=True)
+            row.prop(image_packer, "aspect_ratio_mode")
+            if image_packer.aspect_ratio_mode == "custom":
+                col = layout.column(align=True)
+                col.prop(image_packer, "aspect_ratio_width", text="Width")
+                col.prop(image_packer, "aspect_ratio_height", text="Height")
+
         col = layout.column(align=True)
         row = col.row()
         row.scale_y = 1.5

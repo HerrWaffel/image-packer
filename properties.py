@@ -6,6 +6,7 @@ from bpy.props import (
     StringProperty,
     PointerProperty,
     CollectionProperty,
+    FloatProperty,
     FloatVectorProperty,
 )
 
@@ -71,6 +72,26 @@ class ImagePacker(bpy.types.PropertyGroup):
         name="Name",
         default="New Packed Image",
         description="The name of the packed image"
+    )
+
+    aspect_ratio_mode: EnumProperty(
+        name="Aspect Ratio",
+        items=[
+            ('med', "Median", "Median aspect ratio of all the images"),
+            ('custom', "Custom", "Custom aspect ratio"),
+        ],
+        description="Sets the preferred aspect ratio of the packed image, may result in not the exact aspect ratio",
+    )
+
+    aspect_ratio_width: FloatProperty(
+        name="Width",
+        default=1.0,
+        description="Width component of the aspect ratio"
+    )
+    aspect_ratio_height: FloatProperty(
+        name="Height",
+        default=1.0,
+        description="Height component of the aspect ratio"
     )
 
     bg_color: FloatVectorProperty(
