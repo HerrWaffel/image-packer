@@ -100,7 +100,6 @@ def med_ratio_from_size(sizes):
         ratios.append(size[0] / size[1])
     return median_of_list(ratios)
 
-
 def areas_from_size(sizes):
     areas = []
     for size in sizes:
@@ -192,11 +191,15 @@ def RowPacking(packing_list, image_packer, row_mode=True):
         temp_imgs.append(temp_img)
     side += 2*padding
 
-    # amount of area needed for col pixel data + 50% empty space
-    median_ratio = med_ratio_from_size(sizes) 
+    match image_packer.aspect_ratio_mode:
+        case "med":
+            ratio = med_ratio_from_size(sizes)
+        case "custom":
+            ratio = image_packer.aspect_ratio_width / image_packer.aspect_ratio_height
+
     total_area = sum(areas_from_size(sizes))
     area = ceil(total_area * 1.5) 
-    threshold = ceil( sqrt(area * median_ratio))
+    threshold = ceil( sqrt(area * ratio))
 
     # Initialize the list of image positions
     imgs_pos = []
@@ -288,12 +291,17 @@ def NextFitPacking(packing_list, image_packer):
         w, h = temp_img.size
         sizes.append((w, h))
         
-    # amount of area needed to place all pixel data + 50% empty space
-    median_ratio = med_ratio_from_size(sizes) 
+    match image_packer.aspect_ratio_mode:
+        case "med":
+            ratio = med_ratio_from_size(sizes)
+        case "custom":
+            ratio = image_packer.aspect_ratio_width / image_packer.aspect_ratio_height
+
+    # Amount of area needed to place all pixel data + 50% empty space (cropped later)
     total_area = sum(areas_from_size(sizes))
     area = ceil(total_area * 1.5)  
 
-    max_height = ceil(sqrt(area / median_ratio))
+    max_height = ceil(sqrt(area / ratio))
     max_width = ceil(area / max_height)
 
     imgs_pos, max_w, max_h = pack_rectangles(temp_imgs, max_width, max_height)
