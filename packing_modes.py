@@ -197,10 +197,9 @@ def RowPacking(packing_list, image_packer, row_mode=True):
         case "custom":
             ratio = image_packer.aspect_ratio_width / image_packer.aspect_ratio_height
 
-    total_area = sum(areas_from_size(sizes))
-    area = ceil(total_area * 1.5) 
-    threshold = ceil( sqrt(area * ratio))
-
+    area = sum(areas_from_size(sizes))
+    threshold = ceil( sqrt(area* ratio))
+    
     # Initialize the list of image positions
     imgs_pos = []
 
@@ -214,12 +213,12 @@ def RowPacking(packing_list, image_packer, row_mode=True):
             # Check if the img fits within the current position
             if x + w > threshold:
                 # The img doesn't fit, so start a new line
-                max_w = max(max_w, x)
                 x = 0
                 y += h
             # The img fits, so place it at the current position
             imgs_pos.append((x, y))
             x += w
+            max_w = max(max_w, x)
         max_h = max(imgs_pos, key=lambda x: x[1])[1] + h
 
     # Keep track of img heights per row to place the next row on.

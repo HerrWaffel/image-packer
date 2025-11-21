@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "image_packer"
-version = "1.0.4"
+version = "1.0.5"
 name = "Image Packer"
 tagline = "Packs images into a single image"
 maintainer = "Quint Vrolijk <quint@emberglitch.com>"
