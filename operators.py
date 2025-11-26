@@ -21,7 +21,7 @@ class GenerateOpr(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.image_packer_packing_list
+        return context.scene.image_packer.packing_list
         
     def execute(self, context):
         scene = context.scene
@@ -29,7 +29,7 @@ class GenerateOpr(Operator):
         pref = context.preferences.addons[__package__].preferences
 
         img_list = []
-        for img in context.scene.image_packer_packing_list:
+        for img in context.scene.image_packer.packing_list:
             img_list.append(img["image"])
 
         if image_packer.random_order:
@@ -94,10 +94,10 @@ class AddToPackingListOpr(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.image_packer_packing_list != None
+        return context.scene.image_packer.packing_list != None
 
     def execute(self, context):
-        list = context.scene.image_packer_packing_list
+        list = context.scene.image_packer.packing_list
         pref = context.preferences.addons[__package__].preferences
         new_item = get_active_img()
 
@@ -111,7 +111,7 @@ class AddToPackingListOpr(Operator):
             item.name = new_item.name
             item.image = new_item
             # Set the packing_list_index to the index of the last item in the list
-            context.scene.image_packer_packing_list_index = len(list) - 1
+            context.scene.image_packer.packing_list_index = len(list) - 1
 
         return {"FINISHED"}
 
@@ -123,14 +123,14 @@ class RemoveFromPackingListOpr(Operator):
     @classmethod
     def poll(cls, context):
         """Checks whether the packing list exists and has items"""
-        return context.scene.image_packer_packing_list != None and len(context.scene.image_packer_packing_list) > 0
+        return context.scene.image_packer.packing_list != None and len(context.scene.image_packer.packing_list) > 0
 
     def execute(self, context):
-        list = context.scene.image_packer_packing_list
-        index = context.scene.image_packer_packing_list_index
+        list = context.scene.image_packer.packing_list
+        index = context.scene.image_packer.packing_list_index
 
         list.remove(index)
-        context.scene.image_packer_packing_list_index = min(max(0, index - 1), len(list))
+        context.scene.image_packer.packing_list_index = min(max(0, index - 1), len(list))
 
         return {'FINISHED'}
 
@@ -142,18 +142,18 @@ class ClearPackingListOpr(Operator):
     @classmethod
     def poll(cls, context):
         """Checks whether the packing list exists and has items, and returns a boolean"""
-        return context.scene.image_packer_packing_list != None and len(context.scene.image_packer_packing_list) > 0
+        return context.scene.image_packer.packing_list != None and len(context.scene.image_packer.packing_list) > 0
 
     def execute(self, context):
         # Get the specified list from the current scene
-        list = context.scene.image_packer_packing_list
+        list = context.scene.image_packer.packing_list
 
         # Clear the list
         list.clear()
         self.report({'INFO'}, "Cleared Packing List")
 
         # Set index of the list to 0
-        context.scene.image_packer_packing_list_index = 0
+        context.scene.image_packer.packing_list_index = 0
 
         return {'FINISHED'}
 
@@ -169,21 +169,21 @@ class MoveItemOpr(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.image_packer_packing_list
+        return context.scene.image_packer.packing_list
 
     def move_index(self):
         """ Move index of an item render queue while clamping it. """
 
-        list_length = len(bpy.context.scene.image_packer_packing_list) - 1  # (index starts at 0)
-        index = bpy.context.scene.image_packer_packing_list_index
+        list_length = len(bpy.context.scene.image_packer.packing_list) - 1  # (index starts at 0)
+        index = bpy.context.scene.image_packer.packing_list_index
         new_index = index + (-1 if self.direction == 'UP' else 1)
 
         new_index = max(0, min(new_index, list_length))
-        bpy.context.scene.image_packer_packing_list_index = new_index
+        bpy.context.scene.image_packer.packing_list_index = new_index
 
     def execute(self, context):
-        packing_list = context.scene.image_packer_packing_list
-        index = context.scene.image_packer_packing_list_index
+        packing_list = context.scene.image_packer.packing_list
+        index = context.scene.image_packer.packing_list_index
 
         neighbor = index + (-1 if self.direction == 'UP' else 1)
         packing_list.move(neighbor, index)
@@ -212,10 +212,10 @@ class AddAllImgOpr(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.image_packer_packing_list != None
+        return context.scene.image_packer.packing_list != None
 
     def execute(self, context):
-        list = context.scene.image_packer_packing_list
+        list = context.scene.image_packer.packing_list
         pref = context.preferences.addons[__package__].preferences
 
         for image in bpy.data.images:
@@ -228,7 +228,7 @@ class AddAllImgOpr(Operator):
                 item.name = new_item.name
                 item.image = new_item
                 # Set the packing_list_index to the index of the last item in the list
-                context.scene.image_packer_packing_list_index = len(list) - 1
+                context.scene.image_packer.packing_list_index = len(list) - 1
             
         return {"FINISHED"}
 
@@ -239,7 +239,7 @@ class MakeTestShapesOpr(Operator):
 
     def execute(self, context):
         image_packer = context.scene.image_packer
-        packing_list = context.scene.image_packer_packing_list
+        packing_list = context.scene.image_packer.packing_list
 
         min_size = [image_packer.min_width, image_packer.min_height]
         max_size = [image_packer.max_width, image_packer.max_height]

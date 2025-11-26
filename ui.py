@@ -58,19 +58,19 @@ class IMAGE_PT_PackingList(bpy.types.Panel):
     bl_options = {'HIDE_HEADER'}
 
     def draw(self, context):
-        scene = context.scene
+        image_packer = context.scene.image_packer
         layout = self.layout
 
         # Packing List
         layout.label(text="Packing List")
         list_row = layout.row()
         col = list_row.column()
-        col.template_list("IMAGE_UL_PackingList", "Packing List", scene,
-                          "image_packer_packing_list", scene, "image_packer_packing_list_index")
+        col.template_list("IMAGE_UL_PackingList", "Packing List", image_packer,
+                          "packing_list", image_packer, "packing_list_index")
         
         # Packing Item Options
-        if scene.image_packer_packing_list_index >= 0 and scene.image_packer_packing_list:
-            item = scene.image_packer_packing_list[scene.image_packer_packing_list_index]
+        if image_packer.packing_list_index >= 0 and image_packer.packing_list:
+            item = image_packer.packing_list[image_packer.packing_list_index]
             col.prop(item, "image", text="")
 
         # Packing List Operators
@@ -96,8 +96,7 @@ class IMAGE_PT_PackingOptions(bpy.types.Panel):
     bl_region_type = "UI"
 
     def draw(self, context):
-        scene = context.scene
-        image_packer = scene.image_packer
+        image_packer = context.scene.image_packer
         layout = self.layout
 
         row = layout.row(align=True)
@@ -176,8 +175,7 @@ class IMAGE_PT_TestShapes(bpy.types.Panel):
     bl_region_type = "UI"
 
     def draw(self, context):
-        scene = context.scene
-        image_packer = scene.image_packer
+        image_packer = context.scene.image_packer
         layout = self.layout
 
         row = layout.row()

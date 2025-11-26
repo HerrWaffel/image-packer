@@ -10,11 +10,6 @@ from bpy.props import (
     FloatVectorProperty,
 )
 
-def packing_list_index_callback(self, context):
-    packing_list = context.scene.image_packer_packing_list
-    index = context.scene.image_packer_packing_list_index
-    bpy.context.area.spaces.active.image = packing_list[index].image
-
 
 class PackItem(bpy.types.PropertyGroup):
     """Group of properties representing an item in the list."""
@@ -24,6 +19,24 @@ class PackItem(bpy.types.PropertyGroup):
 
 
 class ImagePacker(bpy.types.PropertyGroup):
+    def packing_list_index_callback(self, context):
+        if len(self.packing_list) > 0:
+            context.area.spaces.active.image = self.packing_list[self.packing_list_index].image
+    
+    # Packing List
+    packing_list: CollectionProperty(
+        name="Packing List",
+        description="List of all images to pack",
+        type=PackItem,
+    )
+
+    packing_list_index: IntProperty(
+        name="Index for packing_list",
+        default=0,
+        update=packing_list_index_callback
+    )
+
+
     packing_modes = [
         ('square_packing', "Square Packing", 
         "Scales all images to the same size and makes a 1:1 packed image, keeps the images in order"),
@@ -205,17 +218,9 @@ def register():
         bpy.utils.register_class(cls)
 
     bpy.types.Scene.image_packer = PointerProperty(type=ImagePacker)
-    # List of images to pack
-    bpy.types.Scene.image_packer_packing_list = CollectionProperty(type=PackItem)
-    bpy.types.Scene.image_packer_packing_list_index = IntProperty(name="Index for packing_list",
-                                                 default=0,
-                                                 update=packing_list_index_callback)
-
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
 
     del bpy.types.Scene.image_packer
-    del bpy.types.Scene.image_packer_packing_list
-    del bpy.types.Scene.image_packer_packing_list_index
