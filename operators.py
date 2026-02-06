@@ -1,6 +1,6 @@
 import bpy
-from bpy.types import Operator
-from bpy.props import StringProperty
+from bpy.types import Operator, OperatorFileListElement
+from bpy_extras.io_utils import ImportHelper
 from .utils import (
     get_active_img, 
     shuffle_packing_list, 
@@ -114,6 +114,48 @@ class AddToPackingListOpr(Operator):
             context.scene.image_packer.packing_list_index = len(list) - 1
 
         return {"FINISHED"}
+    
+class AddFromFilesOpr(Operator, ImportHelper):
+    bl_label = "Add from files"
+    bl_idname = "opr.add_from_files"
+    bl_description = "Adds images from files to the packing list"
+
+    directory: bpy.props.StringProperty(subtype='DIR_PATH', options={'SKIP_SAVE', 'HIDDEN'})
+    files: bpy.props.CollectionProperty(type=OperatorFileListElement, options={'SKIP_SAVE', 'HIDDEN'})
+    filter_image: bpy.props.BoolProperty(default=True, options={'SKIP_SAVE', 'HIDDEN'})
+    filter_folder: bpy.props.BoolProperty(default=True, options={'SKIP_SAVE', 'HIDDEN'})
+
+
+    @classmethod
+    def poll(cls, context):
+        return context.scene.image_packer.packing_list != None
+    
+    def execute(self, context):
+        if not self.directory or len(self.files) == 0:
+            return {'CANCELLED'}
+
+        old_ptrs = {img.as_pointer() for img in bpy.data.images}
+
+        import os
+        for file in self.files:
+            filepath = os.path.join(self.directory, file.name)
+            bpy.ops.image.open(filepath=filepath, check_existing=True)
+
+        list = context.scene.image_packer.packing_list
+        pref = context.preferences.addons[__package__].preferences
+
+        new_images = [img for img in bpy.data.images if img.as_pointer() not in old_ptrs]
+        for new_img in new_images:
+            # If duplicates are allowed or the new item is not in the packing list 
+            if pref.allow_duplicates or new_img.name not in [item.name for item in list]:
+                item = list.add()
+                item.name = new_img.name
+                item.image = new_img
+
+        # Set the packing_list_index to the index of the last item in the list
+        context.scene.image_packer.packing_list_index = len(list) - 1
+
+        return {'FINISHED'}
 
 class RemoveFromPackingListOpr(Operator):
     bl_label = "Remove from packing list"
@@ -263,6 +305,7 @@ classes = (
     PreviewOpr,
     RemovePackedOpr,
     AddToPackingListOpr,
+    AddFromFilesOpr,
     RemoveFromPackingListOpr,
     ClearPackingListOpr,
     MoveItemOpr,

@@ -77,6 +77,8 @@ class IMAGE_PT_PackingList(bpy.types.Panel):
         col.separator(factor=0.5)
         row = col.row(align=True)
         row.operator("opr.add_to_packing_list", text="Add")
+        row.operator("opr.add_from_files", text="", icon='FILE_FOLDER')
+        row.separator()
         row.operator("opr.remove_from_packing_list", text="Remove")
         row.operator("opr.clear_packing_list", text="Clear")
         
